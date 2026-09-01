@@ -6,23 +6,34 @@ These tools are built in Python and can be run individually from source, or mana
 
 ---
 
-## 🧰 Included Tools
+# Tools 
 
 Each tool is located in its own subdirectory with its own logic and configurations:
 
-1. **💬 OSC-Chatbox:** Sends custom text, system stats (CPU, GPU, RAM), time, and media playbacks to your VRChat chatbox using OSC. Integrates with Libre Hardware Monitor.
-2. **🎭 OSC-FaceTrackingController:** Translates hardware facial tracking streams into standard OSC parameters for VRChat avatars.
-3. **🎮 OSC-Gamepad:** Map controller buttons, joysticks, and triggers to specific VRChat avatar OSC parameters.
-4. **🔍 OSC-ParameterBrowser:** An interactive UI for browsing, tracking, and debugging live OSC input/output parameters in real-time.
-5. **🔌 OSC-Router:** Routes, filters, and splits incoming and outgoing OSC packets across multiple ports, allowing multiple OSC apps to run simultaneously.
-6. **📜 OSC-ScriptMaker:** Create, manage, and execute complex sequences of OSC events, movements, and avatar states.
-7. **🚀 VRChat-Launcher:** Easily launch VRChat with custom arguments, launch options, and optimized performance environments.
-8. **⭐ VRChat-LocalFavorites:** Manage, search, and group your favorite worlds and avatars locally, bypassing standard in-game limit restrictions.
-9. **📝 VRChat-SocialLogger:** Keep a private, locally logged record of joining, leaving, and social status events for friends.
+## Tools Made By Boots
+
+1. **OSC-Chatbox:** Sends custom text, system stats (CPU, GPU, RAM), time, and media playbacks to your VRChat chatbox using OSC. Integrates with Libre Hardware Monitor.
+2. **OSC-FaceTrackingController:** Translates hardware facial tracking streams into standard OSC parameters for VRChat avatars.
+3. **OSC-Gamepad:** Map controller buttons, joysticks, and triggers to specific VRChat avatar OSC parameters.
+4. **OSC-ParameterBrowser:** An interactive UI for browsing, tracking, and debugging live OSC input/output parameters in real-time.
+5. **OSC-Router:** Routes, filters, and splits incoming and outgoing OSC packets across multiple ports, allowing multiple OSC apps to run simultaneously.
+6. **OSC-ScriptMaker:** Create, manage, and execute complex sequences of OSC events, movements, and avatar states.
+7. **VRChat-Launcher:** Easily launch VRChat with custom arguments, launch options, and optimized performance environments.
+8. **VRChat-LocalFavorites:** Manage, search, and group your favorite worlds and avatars locally, bypassing standard in-game limit restrictions.
+9. **VRChat-SocialLogger:** Keep a private, locally logged record of joining, leaving, and social status events for friends.
+
+
+
+## Verified Community Tools
+
+Tool Name : Tool Description : Tool Maker
+
+1. **Test:** (This is a placholder community tools will arrive soon) - Boots
+
 
 ---
 
-## 💻 Manual Installation & Setup
+##  Manual Installation & Setup
 
 If you prefer to run these tools standalone without the main ToolBox:
 
@@ -37,6 +48,7 @@ Each tool may have unique libraries. To install dependencies for a specific tool
 cd OSC-Chatbox
 pip install -r dependency.txt
 ```
+Doing this is usually not needed as they will make there own virtual environments and install the dependency needed
 
 ### Running a Tool
 Execute the tool's `main.py` entry point:
@@ -46,10 +58,11 @@ python main.py
 
 ---
 
-## 🤝 Contribution & Feedback
+##  Contribution & Feedback
 
 If you have feature requests, bug fixes, or suggestions, feel free to open an issue or pull request! Join our community on Discord to discuss development:
 
-✨ **Discord Server:** [Join here!](https://discord.gg/YDXpQPF6g9)
+### [**The Discord Server**](https://discord.gg/YDXpQPF6g9)
 
-*Made with 💖 by Boots and contributors.*
+*Made with <3 by:*
+1. Boots @CaptainBoots
