@@ -1,0 +1,24 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# Python caching
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE configurations
+.idea/
+.vscode/
+/CLAUDE.md
+/GEMINI.md
+/AGENTS.md
+
+# None Tools
+configs/
+LibreHardwareMonitor/
+VRChat-Toolbox/
+
+# Developer automation scripts
+/dev-*.bat
