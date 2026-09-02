@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "8.5.7"
+VERSION = "8.5.8"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 
