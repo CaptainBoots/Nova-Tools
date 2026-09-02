@@ -2,7 +2,7 @@
 ui/app.py
 ─────────
 Root window for VRChat Social Logger.
-Same structure and theme as the rest of VRChat-Tools: header bar with
+Same structure and theme as the rest of Nova-Tools: header bar with
 title + version, dark tab widget, three tabs.
 
 Owns the VRChatAPI session and the shared Engine (background friends

@@ -23,7 +23,7 @@ from __future__ import annotations
 import requests
 
 API_BASE = "https://api.vrchat.cloud/api/1"
-USER_AGENT = "VRChat-Local-Favorites/1.0 (github.com/CaptainBoots/VRChat-Tools)"
+USER_AGENT = "VRChat-Local-Favorites/1.0 (github.com/CaptainBoots/Nova-Tools)"
 
 
 class VRChatAPIError(Exception):

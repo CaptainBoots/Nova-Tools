@@ -1,8 +1,8 @@
-# VRChat Tools
+# Nova Tools
 
-Welcome to the **VRChat Tools** suite! This repository houses a collection of lightweight, standalone, and modular OSC (Open Sound Control) utilities and social loggers designed to enhance your VRChat experience.
+Welcome to the **Nova Tools** suite! This repository houses a collection of lightweight, standalone, and modular OSC (Open Sound Control) utilities and social loggers.
 
-These tools are built in Python and can be run individually from source, or managed collectively using the [VRChat ToolBox](https://github.com/CaptainBoots/VRChat-ToolBox).
+These tools are built in Python and can be run individually from source, or managed collectively using [Project-Proto](https://github.com/CaptainBoots/Project-Proto).
 
 ---
 

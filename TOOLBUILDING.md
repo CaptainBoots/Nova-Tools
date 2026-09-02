@@ -1,6 +1,6 @@
-# VRChat Tools Development Guide
+# Nova Tools Development Guide
 
-Welcome to the development guide for creating official VRChat OSC and utility tools. This document outlines the standards, naming conventions, directory structure, dependency management, and UI styling guidelines required to build high-quality, modern, and visually consistent tools for the VRChat-Tools ecosystem.
+Welcome to the development guide for creating official OSC and utility tools. This document outlines the standards, naming conventions, directory structure, dependency management, and UI styling guidelines required to build high-quality, modern, and visually consistent tools for the Nova-Tools ecosystem.
 
 ---
 

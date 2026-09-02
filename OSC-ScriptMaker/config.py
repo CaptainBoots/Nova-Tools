@@ -19,8 +19,8 @@ APP_DIR_NAME = "OSC-ScriptMaker"
 def _config_dir() -> Path:
     if platform.system() == "Windows":
         base = os.getenv("APPDATA") or str(Path.home())
-        return Path(base) / "VRChat-Tools" / APP_DIR_NAME
-    return Path.home() / ".config" / "vrchat-tools" / APP_DIR_NAME
+        return Path(base) / "Nova-Tools" / APP_DIR_NAME
+    return Path.home() / ".config" / "nova-tools" / APP_DIR_NAME
 
 
 CONFIG_DIR = _config_dir()

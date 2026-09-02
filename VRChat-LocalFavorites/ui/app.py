@@ -2,7 +2,7 @@
 ui/app.py
 ─────────
 Root window for VRChat Local Favorites. Same header/tabs structure as
-the rest of VRChat-Tools. Owns the VRChatAPI session and FavoritesStore
+the rest of Nova-Tools. Owns the VRChatAPI session and FavoritesStore
 so they survive a theme rebuild (§6.8), and the login/secure-storage
 flow — same pattern as VRChat-Social-Logger's app.py (already debugged
 there), reused here rather than re-derived.

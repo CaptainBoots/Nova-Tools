@@ -18,7 +18,7 @@ __pycache__/
 # None Tools
 configs/
 LibreHardwareMonitor/
-VRChat-Toolbox/
+Project-Proto/
 
 # Developer automation scripts
 /dev-*.bat

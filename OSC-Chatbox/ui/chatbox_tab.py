@@ -333,7 +333,7 @@ class ChatboxTab(StripeBackground):
 
         self._github_btn = _IconButton(
             "assets/github.png", theme.BG, theme.ACCENT2,
-            "https://github.com/CaptainBoots/VRChat-ToolBox",
+            "https://github.com/CaptainBoots/NovaCore-ToolBox",
         )
         self._github_btn.setParent(self)
 

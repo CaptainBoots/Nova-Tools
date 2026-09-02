@@ -30,7 +30,7 @@ API_BASE = "https://api.vrchat.cloud/api/1"
 # VRChat's API requires a descriptive User-Agent identifying the
 # application and a contact point; requests without one are routinely
 # rejected with 403. Keep this in sync with main.VERSION.
-USER_AGENT = "VRChat-Social-Logger/1.0 (github.com/CaptainBoots/VRChat-Tools)"
+USER_AGENT = "VRChat-Social-Logger/1.0 (github.com/CaptainBoots/Nova-Tools)"
 
 
 class VRChatAPIError(Exception):

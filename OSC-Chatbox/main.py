@@ -110,14 +110,14 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # ── LHM startup helpers ───────────────────────────────────────────────────────
 
 def _lhm_exe_path() -> str:
-    """Resolve the LHM exe path relative to the VRChat-Tools root."""
+    """Resolve the LHM exe path relative to the Nova-Tools root."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    tools_root = os.path.dirname(script_dir)          # VRChat-Tools/
-    toolbox_root = os.path.dirname(tools_root)         # same level as VRChat-Tools/
+    tools_root = os.path.dirname(script_dir)          # Nova-Tools/
+    toolbox_root = os.path.dirname(tools_root)         # same level as Nova-Tools/
     # Try both: tools root sibling and tools root child
     candidates = [
         os.path.join(tools_root, "LibreHardwareMonitor", "LibreHardwareMonitor.exe"),
-        os.path.join(toolbox_root, "VRChat-Tools", "LibreHardwareMonitor", "LibreHardwareMonitor.exe"),
+        os.path.join(toolbox_root, "Nova-Tools", "LibreHardwareMonitor", "LibreHardwareMonitor.exe"),
     ]
     for c in candidates:
         if os.path.isfile(c):
