@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.0.2"
+VERSION = "1.0.0"
 NAME = "Parameter Browser"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────

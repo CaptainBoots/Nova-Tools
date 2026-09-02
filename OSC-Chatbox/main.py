@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "8.5.9"
+VERSION = "1.0.0"
 NAME = "ChatBox"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────

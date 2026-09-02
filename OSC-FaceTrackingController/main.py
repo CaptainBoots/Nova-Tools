@@ -9,7 +9,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.1.1"
+VERSION = "1.0.0"
 NAME = "Face Tracking Controller"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
