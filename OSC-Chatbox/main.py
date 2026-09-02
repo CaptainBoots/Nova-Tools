@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "8.5.8"
+VERSION = "8.5.9"
 NAME = "ChatBox"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
@@ -246,7 +246,7 @@ def _show_lhm_started_popup() -> None:
     )
     ok_btn.setFont(qt_font(9, bold=True))
     ok_btn.clicked.connect(popup.accept)
-    body_layout.addWidget(ok_btn, alignment=Qt.AlignCenter)
+    body_layout.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
     root_layout.addWidget(body)
 
@@ -265,7 +265,9 @@ def _launch_lhm():
     try:
         if sys.platform == "win32":
             import ctypes
-            ret = ctypes.windll.shell32.ShellExecuteW(
+            shell32 = getattr(ctypes.windll, "shell32")
+            ShellExecuteW = getattr(shell32, "ShellExecuteW")
+            ret = ShellExecuteW(
                 None, "runas", exe, None, os.path.dirname(exe), 1
             )
             if ret <= 32:
