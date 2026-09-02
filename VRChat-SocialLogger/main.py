@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 VERSION = "1.0.0"
+NAME = "VRChat SocialLogger"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

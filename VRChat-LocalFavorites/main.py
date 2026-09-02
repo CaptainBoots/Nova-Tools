@@ -3,6 +3,7 @@ import subprocess
 import sys
 
 VERSION = "1.0.0"
+NAME = "VRChat Local Favorites"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

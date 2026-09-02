@@ -9,6 +9,7 @@ import subprocess
 import sys
 
 VERSION = "1.0.0"
+NAME = "Script Maker"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

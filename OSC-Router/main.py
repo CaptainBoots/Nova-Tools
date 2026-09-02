@@ -10,6 +10,7 @@ import subprocess
 import sys
 
 VERSION = "2.2.1"
+NAME = "Router"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

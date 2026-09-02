@@ -10,6 +10,7 @@ import subprocess
 import sys
 
 VERSION = "1.2.0"
+NAME = "Gamepad"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 
