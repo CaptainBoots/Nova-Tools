@@ -4,6 +4,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "VRChat Local Favorites"
+TOOL_ID = "000108"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

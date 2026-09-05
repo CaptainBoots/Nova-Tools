@@ -10,6 +10,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "Script Maker"
+TOOL_ID = "000106"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

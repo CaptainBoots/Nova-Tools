@@ -11,6 +11,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "Parameter Browser"
+TOOL_ID = "000104"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

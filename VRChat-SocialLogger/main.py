@@ -4,6 +4,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "VRChat SocialLogger"
+TOOL_ID = "000109"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

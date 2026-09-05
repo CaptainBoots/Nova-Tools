@@ -11,6 +11,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "Gamepad"
+TOOL_ID = "000103"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

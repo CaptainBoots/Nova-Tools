@@ -11,6 +11,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "VRChat Launcher"
+TOOL_ID = "000107"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

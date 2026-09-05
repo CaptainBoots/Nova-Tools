@@ -11,6 +11,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "Router"
+TOOL_ID = "000105"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

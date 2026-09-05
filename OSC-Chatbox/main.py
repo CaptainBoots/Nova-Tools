@@ -4,6 +4,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "ChatBox"
+TOOL_ID = "000101"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 

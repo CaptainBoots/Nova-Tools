@@ -11,6 +11,7 @@ import sys
 
 VERSION = "1.0.0"
 NAME = "Face Tracking Controller"
+TOOL_ID = "000102"
 
 # ── Dependency bootstrap (Isolated Virtual Environment) ───────────────────────
 
