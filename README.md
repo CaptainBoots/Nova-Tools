@@ -1,7 +1,7 @@
 # Nova Tools
 
 Welcome to the **Nova Tools** suite! This repository houses a collection of lightweight, standalone, and modular tools for VRChat.
-These tools are built mostly in Python and can be run individually from source, or managed collectively using [Project-Proto](https://github.com/CaptainBoots/Project-Proto).
+These tools are built to be ran individually or managed collectively using [Project-Proto](https://github.com/CaptainBoots/Project-Proto).
 
 ---
 
