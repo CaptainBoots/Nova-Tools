@@ -21,7 +21,7 @@ Each tool is located in its own subdirectory with its own logic and configuratio
 - 000901 - 001000 - unreserved
 - 001001 - 001100 - unreserved
 
-Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get a id range and make new tools
+Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get a ID range and to make new tools
 
 ## Tools Made By Boots
 
