@@ -31,7 +31,7 @@ Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get a ID range and to m
 4. **OSC-ParameterBrowser:** An interactive UI for browsing, tracking, and debugging live OSC input/output parameters in real-time.
 5. **OSC-Router:** Routes, filters, and splits incoming and outgoing OSC packets across multiple ports, allowing multiple OSC apps to run simultaneously.
 6. **OSC-ScriptMaker:** Create, manage, and execute complex sequences of OSC events, movements, and avatar states.
-7. **VRChat-Launcher:** Easily launch VRChat with custom arguments, launch options, and optimized performance environments.
+7. **VRChat-Launcher:** Easily launch VRChat with custom arguments, launch options, and optimised performance environments.
 8. **VRChat-LocalFavorites:** Manage, search, and group your favorite worlds and avatars locally, bypassing standard in-game limit restrictions.
 9. **VRChat-SocialLogger:** Keep a private, locally logged record of joining, leaving, and social status events for friends.
 
