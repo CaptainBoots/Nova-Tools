@@ -10,7 +10,7 @@ Profiles carry a stable "uid" separate from their position in the
 list. The original Tk version tracked live processes by *list index*,
 which silently mis-associates a running process with the wrong
 profile the moment any earlier profile is removed (everything after
-it shifts down by one). Using a uid that never changes for the
+it shifts down by one). Using an uid that never changes for the
 lifetime of a profile fixes that without changing any visible
 behaviour.
 """
@@ -46,7 +46,7 @@ def next_uid() -> int:
 
 def resync_uid_counter(profiles: list[dict]):
     """Call once after loading profiles from disk so newly-added
-    profiles never collide with a uid loaded from a save file."""
+    profiles never collide with an uid loaded from a save file."""
     global _uid_counter
     highest = max((p.get("uid", -1) for p in profiles), default=-1)
     _uid_counter = itertools.count(highest + 1)
@@ -59,7 +59,7 @@ def default_profile(idx: int) -> dict:
         "osc_ip": "127.0.0.1",
         "osc_port": 9000 + idx * 10,
         "listen_port": 9001 + idx * 10,
-        "color": PROFILE_COLORS[idx % len(PROFILE_COLORS)],
+        "colour": PROFILE_COLORS[idx % len(PROFILE_COLORS)],
         "exe_args": "",
     }
 
@@ -98,6 +98,7 @@ class LauncherProcessManager:
                 proc.terminate()
             except OSError:
                 pass
+
         self._procs[uid] = None
 
     def kill_all(self):
@@ -109,10 +110,11 @@ class LauncherProcessManager:
         if proc and proc.poll() is None:
             return True
         if uid in self._procs:
+
             self._procs[uid] = None
         return False
 
     def drop(self, uid: int):
-        """Stop tracking a uid entirely — call when its profile is removed."""
+        """Stop tracking an uid entirely — call when its profile is removed."""
         self.kill(uid)
         self._procs.pop(uid, None)

@@ -11,7 +11,9 @@ from PySide6.QtWidgets import (
     QPushButton, QComboBox, QSlider, QTabWidget, QScrollArea,
 )
 
+
 from core.face_params import FACE_PARAMS
+
 from core.osc_face import OscFaceClient, PREFIX_PRESETS, DEFAULT_OSC_IP, DEFAULT_OSC_PORT, normalize_prefix
 from ui import theme
 from ui.theme import StripeBackground
@@ -59,6 +61,7 @@ class FaceTab(StripeBackground):
 
         # ── Connection row ────────────────────────────────────────────────────
         conn_row = QHBoxLayout()
+
 
         def lbl(text):
             l = theme.TextChip(text, fg=theme.SUBTEXT, padding="2px 6px")
@@ -114,17 +117,22 @@ class FaceTab(StripeBackground):
             b = QPushButton(text)
             b.setFont(theme.qt_font(10, bold=True))
             b.setMinimumWidth(110)
+
             b.setCursor(Qt.PointingHandCursor)
             b.clicked.connect(cmd)
             btn_row.addWidget(b)
 
+
         self._start_btn = btn_row.itemAt(0).widget()
+
         self._stop_btn = btn_row.itemAt(1).widget()
+
         self._restart_btn = btn_row.itemAt(2).widget()
 
         reset_btn = QPushButton("Reset All")
         reset_btn.setStyleSheet(theme.accent_button_qss())
         reset_btn.setFont(theme.qt_font(9, bold=True))
+
         reset_btn.setCursor(Qt.PointingHandCursor)
         reset_btn.clicked.connect(self._reset_all)
         btn_row.addWidget(reset_btn)
@@ -134,6 +142,7 @@ class FaceTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         btn_row.addWidget(help_btn)
@@ -141,6 +150,7 @@ class FaceTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         btn_row.addWidget(settings_btn)
@@ -219,11 +229,13 @@ class FaceTab(StripeBackground):
         lo_lbl.setFixedWidth(28)
         row_layout.addWidget(lo_lbl)
 
+
         slider = QSlider(Qt.Horizontal)
         slider.setMinimum(0)
         slider.setMaximum(SLIDER_STEPS)
         slider.setValue(_pos_for_value(default, lo, hi))
         slider.setFixedWidth(220)
+
         slider.setCursor(Qt.PointingHandCursor)
         slider.setStyleSheet(
             f"QSlider::groove:horizontal {{ background: #252535; height: 4px; border: none; }}"
@@ -239,6 +251,7 @@ class FaceTab(StripeBackground):
         row_layout.addWidget(hi_lbl)
 
         val_lbl = QLabel(f"{default:.3f}")
+
         val_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         val_lbl.setStyleSheet(
             f"color: {theme.ACCENT2}; background-color: {theme.PANEL}; padding: 1px 4px; border: none;"
@@ -254,6 +267,7 @@ class FaceTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.BORDER}; color: {theme.TEXT}; }}"
         )
         reset_btn.setFont(theme.qt_font(9, bold=True))
+
         reset_btn.setCursor(Qt.PointingHandCursor)
         row_layout.addWidget(reset_btn)
 

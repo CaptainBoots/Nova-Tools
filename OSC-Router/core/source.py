@@ -42,7 +42,9 @@ class OscSource:
             d = Dispatcher()
             d.set_default_handler(self._handle)
             self._server = ThreadingOSCUDPServer(("127.0.0.1", self.port), d)
+
             self._thread = threading.Thread(target=self._server.serve_forever, daemon=True)
+
             self._thread.start()
             self.running = True
             print(f"[Router] '{self.name}' listening on :{self.port}")

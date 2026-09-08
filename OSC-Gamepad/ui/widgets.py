@@ -39,6 +39,7 @@ class _AxisButton(QPushButton):
         self._action = action
         self._state = state
         self.setFixedSize(34, 34)
+
         self.setCursor(Qt.PointingHandCursor)
         self.setFont(theme.qt_font(font_size, bold=True))
         self._apply_style(theme.BORDER)
@@ -62,11 +63,13 @@ class _AxisButton(QPushButton):
         super().leaveEvent(event)
 
     def mousePressEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self._state.press_axis(self._action)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self._state.release_axis(self._action)
         super().mouseReleaseEvent(event)
@@ -87,6 +90,7 @@ class _ActionButton(QPushButton):
         self._state = state
         self._colour = colour
         self.setFixedSize(width * 14, height * 22)
+
         self.setCursor(Qt.PointingHandCursor)
         self.setFont(theme.qt_font(8, bold=True))
         self._set_bg(theme.PANEL)
@@ -107,12 +111,14 @@ class _ActionButton(QPushButton):
         super().leaveEvent(event)
 
     def mousePressEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self._state.press_btn(self._action)
             self._set_bg(theme.ACCENT)
         super().mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self._state.release_btn(self._action)
             self._set_bg(theme.PANEL)
@@ -135,6 +141,7 @@ class _ToggleButton(QPushButton):
         self._colour = colour
         self._active = False
         self.setFixedSize(width * 14, height * 22)
+
         self.setCursor(Qt.PointingHandCursor)
         self.setFont(theme.qt_font(8, bold=True))
         self._refresh()
@@ -177,6 +184,7 @@ def square_button(parent, text: str, command, base_size: int = 28) -> QWidget:
     lay.setContentsMargins(0, 0, 0, 0)
 
     btn = QPushButton(text)
+
     btn.setCursor(Qt.PointingHandCursor)
     btn.setFont(theme.qt_font(12))
     btn.setStyleSheet(
@@ -253,6 +261,7 @@ class NESPad(QWidget):
         look_layout.setSpacing(2)
 
         look_lbl = QLabel("LOOK")
+
         look_lbl.setAlignment(Qt.AlignCenter)
         look_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         look_lbl.setFont(theme.qt_font(7))
@@ -295,10 +304,12 @@ class _AnalogStick(QWidget):
         self._knob = knob
         self._pos = QPointF(0, 0)  # offset from centre, in pixels
         self.setFixedSize(size, size)
+
         self.setCursor(Qt.PointingHandCursor)
 
     def paintEvent(self, _event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, True)
         cen = self._size / 2
 
@@ -327,17 +338,22 @@ class _AnalogStick(QWidget):
             dx, dy = dx / dist * max_r, dy / dist * max_r
         self._pos = QPointF(dx, dy)
         self.update()
+
         self._state._safe_send("/input/Horizontal", round(max(-1.0, min(1.0, dx / max_r)), 3))
+
         self._state._safe_send("/input/Vertical", round(max(-1.0, min(1.0, -dy / max_r)), 3))
 
     def mousePressEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self.mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         self._pos = QPointF(0, 0)
         self.update()
+
         self._state._safe_send("/input/Horizontal", 0.0)
+
         self._state._safe_send("/input/Vertical", 0.0)
 
 
@@ -354,10 +370,12 @@ class _AxisSlider(QWidget):
         self._knob = knob
         self._x = width / 2  # knob centre x
         self.setFixedSize(width, height)
+
         self.setCursor(Qt.PointingHandCursor)
 
     def paintEvent(self, _event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, True)
         ty = self._h / 2
 
@@ -373,15 +391,18 @@ class _AxisSlider(QWidget):
         x = max(self._knob / 2, min(self._w - self._knob / 2, event.position().x()))
         self._x = x
         self.update()
+
         self._state._safe_send(self._addr, round((x - self._w / 2) / (usable / 2), 3))
 
     def mousePressEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self.mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
         self._x = self._w / 2
         self.update()
+
         self._state._safe_send(self._addr, 0.0)
 
 
@@ -403,6 +424,7 @@ class JoystickPad(QWidget):
         h_slider = _AxisSlider(self.state, "/input/LookHorizontal")
         left.addWidget(h_slider)
         h_lbl = QLabel("LOOK H")
+
         h_lbl.setAlignment(Qt.AlignCenter)
         h_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         h_lbl.setFont(theme.qt_font(7))
@@ -412,6 +434,7 @@ class JoystickPad(QWidget):
         v_slider = _AxisSlider(self.state, "/input/LookVertical")
         left.addWidget(v_slider)
         v_lbl = QLabel("LOOK V")
+
         v_lbl.setAlignment(Qt.AlignCenter)
         v_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         v_lbl.setFont(theme.qt_font(7))

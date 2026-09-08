@@ -13,10 +13,13 @@ from PySide6.QtWidgets import (
     QPlainTextEdit,
 )
 
+
 from core.models import Script, default_script
+
 from core.script_engine import ScriptEngine
 from ui import theme
 from ui.theme import StripeBackground
+
 from ui.script_card import ScriptCard
 
 MAX_LOG_LINES = 200
@@ -108,6 +111,7 @@ class ScriptMakerTab(StripeBackground):
             b = QPushButton(text)
             b.setFont(theme.qt_font(10, bold=True))
             b.setMinimumWidth(110)
+
             b.setCursor(Qt.PointingHandCursor)
             b.clicked.connect(cmd)
             btn_row.addWidget(b)
@@ -117,6 +121,7 @@ class ScriptMakerTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         btn_row.addWidget(help_btn)
@@ -124,6 +129,7 @@ class ScriptMakerTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         btn_row.addWidget(settings_btn)
@@ -136,6 +142,7 @@ class ScriptMakerTab(StripeBackground):
 
         add_btn = QPushButton("＋  Add Script")
         add_btn.setFont(theme.qt_font(10, bold=True))
+
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.setMinimumWidth(130)
         add_btn.clicked.connect(self._add_script)

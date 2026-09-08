@@ -3,7 +3,7 @@
 import re
 import subprocess
 import sys
-from typing import Optional
+from typing import Optional, Callable, Any
 
 from core import media_registry
 
@@ -58,7 +58,7 @@ def get_priority_order() -> list[str]:
 # which works identically on every OS and doesn't depend on Spotify (or a
 # browser tab) registering an SMTC/MPRIS session at all — see the Settings
 # section's docstring for why that matters.
-_spotify_session_provider = None  # callable -> core.spotify_api.SpotifySession | None
+_spotify_session_provider: Optional[Callable[[], Any]] = None  # callable -> core.spotify_api.SpotifySession | None
 
 
 def set_spotify_session_provider(provider):
@@ -69,6 +69,7 @@ def set_spotify_session_provider(provider):
 def _spotify_candidate() -> Optional[dict]:
     if _spotify_session_provider is None:
         return None
+
     session = _spotify_session_provider()
     if session is None:
         return None
@@ -125,7 +126,7 @@ def source_name(raw: str) -> str:
     if entry_id:
         return media_registry.label_for(entry_id)
 
-    # Advanced Regex Cleanup Fallback
+    # Advanced Regex Clean-up Fallback
     name = raw.split("!")[-1]
     name = name.split("/")[-1].split("\\")[-1]
     name = name.replace(".exe", "")
@@ -135,6 +136,7 @@ def source_name(raw: str) -> str:
 
     cleaned = re.sub(r"[._-]+", " ", name).strip()
     return cleaned.title() if cleaned else "System Media"
+
 
 
 def progress_bar(pos_ms: float, dur_ms: float, filled: str, border: str, empty: str, length: int = 15) -> str:
@@ -242,6 +244,7 @@ async def _windows_candidate() -> Optional[tuple[str, bool, dict]]:
     if wmc is None:
         return None
     try:
+
         mgr = await wmc.GlobalSystemMediaTransportControlsSessionManager.request_async()
         sessions = mgr.get_sessions()
         if not sessions:
@@ -254,6 +257,7 @@ async def _windows_candidate() -> Optional[tuple[str, bool, dict]]:
             raw_id = getattr(s, "source_app_user_model_id", "") or ""
             playback = s.get_playback_info()
             status = playback.playback_status if playback else None
+
 
             if status == wmc.GlobalSystemMediaTransportControlsSessionPlaybackStatus.PLAYING:
                 playing_sessions.append((s, raw_id))
@@ -280,8 +284,11 @@ async def _windows_candidate() -> Optional[tuple[str, bool, dict]]:
         if target_session is None:
             return None
 
+
         props    = await target_session.try_get_media_properties_async()
+
         timeline = target_session.get_timeline_properties()
+
         playback = target_session.get_playback_info()
 
         info = empty()
@@ -289,6 +296,7 @@ async def _windows_candidate() -> Optional[tuple[str, bool, dict]]:
         info["duration_ms"] = timeline.end_time.total_seconds() * 1000
         info["is_paused"]   = (
                 playback.playback_status ==
+
                 wmc.GlobalSystemMediaTransportControlsSessionPlaybackStatus.PAUSED
         )
         info["source"] = source_name(target_raw_id)

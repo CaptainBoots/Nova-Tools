@@ -17,7 +17,7 @@ selectable in Settings ("secure_storage_mode" in config):
                        every launch.
 
 Pure backend — no Qt imports here (§3 point 3 of the porting guide).
-ui/master_password_dialog.py is the only place allowed to prompt for
+ui/master_password_dialogue.py is the only place allowed to prompt for
 the password and call into password-manager CLIs; this module only
 ever handles bytes/dicts.
 """
@@ -60,7 +60,7 @@ class WrongPassword(Exception):
 class CorruptBlob(Exception):
     """The blob file exists and is readable, but isn't a valid blob
     (bad JSON, missing fields, wrong-length nonce, etc.) — e.g. a
-    write that got interrupted mid-save, a disk error, or manual
+    write operation that got interrupted mid-save, a disk error, or manual
     tampering. This is deliberately NOT the same case as a wrong
     password: retrying with a different password can't fix a corrupt
     file, so callers should stop retrying and fall back to a fresh
@@ -117,15 +117,19 @@ class SecureStore:
 
     # ── keyring mode ──────────────────────────────────────────────────
 
+
     def save_keyring(self, cookies: dict):
         if keyring is None:
             raise RuntimeError("The 'keyring' package is not installed.")
+
         keyring.set_password(KEYRING_SERVICE, KEYRING_USERNAME, json.dumps(cookies))
+
 
     def load_keyring(self) -> dict | None:
         if keyring is None:
             return None
         try:
+
             raw = keyring.get_password(KEYRING_SERVICE, KEYRING_USERNAME)
         except Exception:
             return None  # backend unavailable (e.g. no Secret Service running on this Linux session)
@@ -136,10 +140,12 @@ class SecureStore:
         except json.JSONDecodeError:
             return None
 
+
     def clear_keyring(self):
         if keyring is None:
             return
         try:
+
             keyring.delete_password(KEYRING_SERVICE, KEYRING_USERNAME)
         except Exception:
             pass

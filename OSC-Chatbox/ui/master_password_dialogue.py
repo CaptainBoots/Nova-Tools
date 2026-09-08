@@ -1,5 +1,5 @@
 """
-ui/master_password_dialog.py
+ui/master_password_dialogue.py
 ────────────────────────────
 Prompts for the master password used to unlock (or create) the
 encrypted Spotify token blob in "master_password" storage mode. Offers
@@ -7,10 +7,10 @@ one-click buttons for any installed password manager CLI
 (core.password_manager_bridge) as an alternative to typing it, plus a
 manual field that's always available as a fallback.
 
-Ported from VRChat Social Logger's identical dialog — same handling
+Ported from VRChat Social Logger's identical dialogue — same handling
 of the value, deliberately:
   - It is read from the field (or a CLI call) into ONE local variable,
-    used immediately to attempt encrypt/decrypt, then that variable is
+    used immediately to attempt to encrypt/decrypt, then that variable is
     reassigned to "" before the function returns — Python can't
     guarantee the old string is scrubbed from memory (strings are
     immutable and the interpreter may keep copies), but this at least
@@ -22,9 +22,9 @@ of the value, deliberately:
     is ever passed to print()/logging or written to disk anywhere in
     this file.
   - CLI calls run on a background QThread (network/vault-unlock latency
-    for 1Password/Bitwarden can take a second or two) so the dialog
+    for 1Password/Bitwarden can take a second or two) so the dialogue
     never freezes, using the same worker-thread + signal pattern as
-    ui/login_dialog.py.
+    ui/login_dialogue.py.
 """
 
 from __future__ import annotations
@@ -47,7 +47,7 @@ _MANAGER_LABELS = {
 
 
 class _FetchRelay(QObject):
-    """Same purpose as ui/login_dialog.py's _ResultRelay — a genuine
+    """Same purpose as ui/login_dialogue.py's _ResultRelay — a genuine
     QObject constructed on the main thread, used to safely hop a
     worker-thread signal onto a plain local closure. See that file's
     docstring for the full explanation of why this is necessary."""
@@ -97,10 +97,11 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
     result: dict = {"password": None}
     state = {"thread": None, "worker": None, "busy": False}
 
+
     def _closeEvent(event):
-        # Same guard as ui/login_dialog.py — refuse to close (native X
+        # Same guard as ui/login_dialogue.py — refuse to close (native X
         # button, Alt+F4) while a background fetch is in flight, since
-        # destroying the dialog would destroy its child QThread mid-run.
+        # destroying the dialogue would destroy its child QThread mid-run.
         if state["busy"]:
             event.ignore()
             return
@@ -133,6 +134,7 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
 
     pw_edit = QLineEdit()
     pw_edit.setPlaceholderText("Master password")
+
     pw_edit.setEchoMode(QLineEdit.Password)
     pw_edit.setStyleSheet(theme.line_edit_qss())
     root.addWidget(pw_edit)
@@ -185,6 +187,7 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
     if is_create:
         confirm_edit = QLineEdit()
         confirm_edit.setPlaceholderText("Confirm master password")
+
         confirm_edit.setEchoMode(QLineEdit.Password)
         confirm_edit.setStyleSheet(theme.line_edit_qss())
         root.addWidget(confirm_edit)
@@ -212,7 +215,9 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
     def _stop_fetch_thread():
         thread = state["thread"]
         if thread is not None:
+
             thread.quit()
+
             thread.wait()
         state["thread"] = None
         state["worker"] = None
@@ -235,6 +240,7 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
         status_lbl.setText("Couldn't retrieve it — check the item name, or type it manually.")
         status_lbl.setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
 
+
     def _run_fetch(manager: str, item_ref: str, keepass_db_path: str = "", keepass_vault_password: str = ""):
         _set_fetch_busy(True)
         thread = QThread(dlg)
@@ -252,9 +258,12 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
 
         thread.finished.connect(worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
+
         state["thread"] = thread
+
         state["worker"] = worker
-        state["relay"] = relay  # keep a reference alive for the dialog's lifetime
+
+        state["relay"] = relay  # keep a reference alive for the dialogue's lifetime
         thread.start()
 
     def _handle_keepass(item_ref: str):
@@ -274,6 +283,7 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
         v_pw_lbl.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
         v_layout.addWidget(v_pw_lbl)
         vault_pw_edit = QLineEdit()
+
         vault_pw_edit.setEchoMode(QLineEdit.Password)
         vault_pw_edit.setStyleSheet(theme.line_edit_qss())
         v_layout.addWidget(vault_pw_edit)
@@ -294,14 +304,17 @@ def open_master_password_prompt(parent, cfg: dict, mode: str) -> str | None:
         vault_dlg.exec()
 
     def _submit():
+
         password = pw_edit.text()
         if not password:
             status_lbl.setText("Enter a password.")
             return
         if is_create:
+
             confirm = confirm_edit.text()
             if password != confirm:
                 status_lbl.setText("Passwords don't match.")
+
                 confirm_edit.setText("")
                 return
         result["password"] = password

@@ -12,9 +12,10 @@ from PySide6.QtWidgets import (
 )
 
 from config import load_config, save_config, get_defaults
+
 from ui.gamepad_tab import GamepadTab
-from ui.help_dialog import open_help
-from ui.settings_dialog import open_settings
+from ui.help_dialogue import open_help
+from ui.settings_dialogue import open_settings
 from ui import theme
 
 try:
@@ -89,6 +90,7 @@ class App(QMainWindow):
     def _save(self):
         pads_data = self._gamepad_tab.collect_pads()
         self._cfg["pads"] = pads_data
+
         save_config(pads_data, self._cfg.get("theme_mode", "new"))
 
     def _reset_to_defaults(self):
@@ -101,9 +103,10 @@ class App(QMainWindow):
         self._cfg["theme_mode"] = keep_theme
         self._save()
 
-    # ── Dialogs ───────────────────────────────────────────────────────────────
+    # ── Dialogues ───────────────────────────────────────────────────────────────
 
     def _open_settings(self):
+
         open_settings(
             parent   = self,
             cfg      = self._cfg,
@@ -123,6 +126,7 @@ class App(QMainWindow):
         theme.set_theme(mode)
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
         self._rebuild_ui()
 

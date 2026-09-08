@@ -18,16 +18,22 @@ from PySide6.QtWidgets import (
     QApplication, QMessageBox,
 )
 
+
 from config import load_config, save_config, get_defaults, SESSION_BLOB_FILE
+
 from core.vrchat_api import VRChatAPI, VRChatAPIError
 from core.secure_store import SecureStore, WrongPassword, CorruptBlob
+
 from ui.instance_info_tab import InstanceInfoTab
+
 from ui.friends_feed_tab import FriendsFeedTab
+
 from ui.instance_log_tab import InstanceLogTab
-from ui.help_dialog import open_help
-from ui.settings_dialog import open_settings
-from ui.login_dialog import open_login
-from ui.master_password_dialog import open_master_password_prompt
+from ui.help_dialogue import open_help
+from ui.settings_dialogue import open_settings
+
+from ui.login_dialogue import open_login
+from ui.master_password_dialogue import open_master_password_prompt
 from ui import theme
 
 try:
@@ -56,6 +62,7 @@ class App(QMainWindow):
         theme.set_theme(self._cfg.get("theme_mode", "rich_purple"))
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
 
         # Backend state that must survive a theme rebuild (§6.8/§6.16).
@@ -64,11 +71,12 @@ class App(QMainWindow):
         self._bridge = _Bridge()
         # Bound methods of `self` (App is a real QObject/QMainWindow
         # constructed on the main thread), not lambdas — see the note
-        # in ui/login_dialog.py's _ResultRelay docstring for why a bare
+        # in ui/login_dialogue.py's _ResultRelay docstring for why a bare
         # lambda receiver doesn't reliably queue across threads, while
         # a genuine bound method does.
         self._bridge.status.connect(self._on_bridge_status)
         self._bridge.error.connect(self._on_bridge_error)
+
 
         from core.engine import Engine
         self._engine = Engine(
@@ -289,9 +297,10 @@ class App(QMainWindow):
         self._cfg.update(keep)
         self._save()
 
-    # ── Dialogs ───────────────────────────────────────────────────────
+    # ── Dialogues ───────────────────────────────────────────────────────
 
     def _open_settings(self):
+
         open_settings(
             parent=self,
             cfg=self._cfg,
@@ -314,6 +323,7 @@ class App(QMainWindow):
         theme.set_theme(mode)
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
         self._rebuild_ui()
 

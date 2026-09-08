@@ -7,11 +7,14 @@ OSC Face Tracking Controller config I/O and defaults.
 import json
 import os
 
+
 from core.osc_face import DEFAULT_OSC_IP, DEFAULT_OSC_PORT, DEFAULT_OSC_PREFIX
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR  = os.path.dirname(SCRIPT_DIR)
+
 CONFIG_DIR  = os.path.join(PARENT_DIR, "configs")
+
 CONFIG_FILE = os.path.join(CONFIG_DIR, "face_tracking_config.json")
 
 

@@ -158,6 +158,7 @@ def _poll():
                     m = _RE_WORLD.search(line)
                     if m:
                         with _lock:
+
                             _data["vrc_world"] = m.group(1).strip()
                             _data["vrc_player_count"] = 0
                         _players = set()
@@ -180,6 +181,7 @@ def _poll():
                     m = _RE_AVATAR.search(line)
                     if m:
                         with _lock:
+
                             _data["vrc_avatar"] = m.group(1).strip()
                         continue
 

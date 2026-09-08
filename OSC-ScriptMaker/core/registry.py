@@ -71,6 +71,7 @@ def run_action(action, ctx: ActionContext):
     entry = ACTION_BY_ID.get(action.kind)
     if entry is None:
         raise ValueError(f"Unknown action kind: {action.kind!r}")
+
     entry["module"].run(action, ctx)
 
 
@@ -97,8 +98,10 @@ def input_matches(trigger, key: str, value) -> bool:
     kind=='variable'. Timer triggers don't go through this — the engine's
     timer loop drives them directly via timer_interval()."""
     entry = INPUT_BY_ID.get(trigger.kind)
+
     if entry is None or not hasattr(entry["module"], "matches"):
         return False
+
     return entry["module"].matches(trigger, key, value)
 
 

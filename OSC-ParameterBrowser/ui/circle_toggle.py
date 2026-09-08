@@ -8,7 +8,7 @@ circle = OFF — but uses QPainter's native antialiasing instead of the
 PIL 4x-supersample-then-downscale trick (Qt handles this natively).
 
 Usage:
-    toggle = CircleToggle(parent, enabled=True, color="#a78bfa")
+    toggle = CircleToggle(parent, enabled=True, colour="#a78bfa")
     toggle.toggled.connect(my_slot)   # emits bool on user click
     toggle.get() / toggle.set(bool)   # same API as the Tk version
 """
@@ -30,28 +30,33 @@ class CircleToggle(QWidget):
                  pad: int = DEFAULT_PAD, command=None):
         super().__init__(parent)
         self._enabled = enabled
-        self._color = QColor(color)
+        self._color = QColor(colour)
         self._size = size
         self._pad = pad
         self.setFixedSize(size, size)
+
         self.setCursor(Qt.PointingHandCursor)
         if command is not None:
             self.toggled.connect(command)
 
     def paintEvent(self, _event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, True)
         rect = QRectF(self._pad, self._pad,
                        self._size - 2 * self._pad, self._size - 2 * self._pad)
         if self._enabled:
             painter.setBrush(self._color)
+
             painter.setPen(Qt.NoPen)
         else:
+
             painter.setBrush(Qt.NoBrush)
             painter.setPen(QPen(self._color, 2))
         painter.drawEllipse(rect)
 
     def mousePressEvent(self, event):
+
         if event.button() == Qt.LeftButton:
             self._enabled = not self._enabled
             self.update()
@@ -68,5 +73,5 @@ class CircleToggle(QWidget):
         self.update()
 
     def set_color(self, color: str):
-        self._color = QColor(color)
+        self._color = QColor(colour)
         self.update()

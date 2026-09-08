@@ -121,6 +121,7 @@ class VRChatAPI:
         return self._request("GET", f"/instances/{world_id}:{instance_id}")
 
     def search_worlds(self, query: str, n: int = 20) -> list[dict]:
+
         return self._request("GET", "/worlds", params={"search": query, "n": n})
 
     # ── Avatars ───────────────────────────────────────────────────────
@@ -140,6 +141,7 @@ class VRChatAPI:
     def search_avatars(self, query: str, n: int = 20) -> list[dict]:
         """VRChat only allows searching your own or featured avatars —
         this can't be used to browse other people's private avatars."""
+
         return self._request("GET", "/avatars", params={"search": query, "n": n, "releaseStatus": "all"})
 
     # ── Users ─────────────────────────────────────────────────────────
@@ -151,6 +153,7 @@ class VRChatAPI:
         """A single query against VRChat's own user search — the same
         thing the site's search box does. Not a crawl or a location
         lookup; returns public profile info only."""
+
         return self._request("GET", "/users", params={"search": query, "n": n})
 
     # ── Official favorites (for the optional first-launch import) ────
@@ -159,9 +162,12 @@ class VRChatAPI:
                        n: int = 100, offset: int = 0) -> list[dict]:
         params = {"n": n, "offset": offset}
         if fav_type:
+
             params["type"] = fav_type
         if tag:
+
             params["tag"] = tag
+
         return self._request("GET", "/favorites", params=params)
 
     def get_all_favorites(self, fav_type: str | None = None) -> list[dict]:
@@ -181,6 +187,7 @@ class VRChatAPI:
         params = {}
         if fav_type:
             params["type"] = fav_type
+
         return self._request("GET", "/favorite/groups", params=params)
 
 

@@ -13,12 +13,16 @@ from PySide6.QtWidgets import (
     QPushButton,
 )
 
+
 from core.registry import INPUTS
+
 from core.models import (
+
     Script, Action, CONDITIONS, CONDITIONS_NEEDING_VALUE, CONDITIONS_NEEDING_VALUE2,
 )
 from ui import theme
 from ui.circle_toggle import CircleToggle
+
 from ui.action_row import ActionRow, _entry, _row_label, _combo  # reuse the same small helpers
 
 CONDITION_LABELS = {
@@ -55,6 +59,7 @@ class ScriptCard(QFrame):
         hdr.addWidget(self._enabled_toggle)
 
         arrow = QLabel("▼")
+
         arrow.setCursor(Qt.PointingHandCursor)
         arrow.setStyleSheet(f"color: {theme.ACCENT2}; background: transparent; border: none;")
         arrow.setFont(theme.qt_font(10, bold=True))
@@ -74,6 +79,7 @@ class ScriptCard(QFrame):
         hdr.addStretch(1)
 
         rm_btn = QLabel("✕")
+
         rm_btn.setCursor(Qt.PointingHandCursor)
         rm_btn.setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
         rm_btn.setFont(theme.qt_font(11))
@@ -181,6 +187,7 @@ class ScriptCard(QFrame):
         self._kind_combo = kind_combo
 
         self._refresh_trigger_visibility()
+
 
     def _current_key_value(self, trig) -> str:
         if trig.kind == "osc":

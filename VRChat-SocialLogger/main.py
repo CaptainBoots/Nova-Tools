@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 NAME = "VRChat SocialLogger"
 TOOL_ID = "000109"
 

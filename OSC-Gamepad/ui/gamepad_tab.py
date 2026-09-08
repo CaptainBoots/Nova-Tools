@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
 
 from ui import theme
 from ui.theme import StripeBackground
+
 from ui.pad_card import PadCard
 
 
@@ -60,6 +61,7 @@ class GamepadTab(StripeBackground):
 
         add_btn = QPushButton("＋  Add Pad")
         add_btn.setFont(theme.qt_font(10, bold=True))
+
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.setMinimumWidth(110)
         add_btn.clicked.connect(self._add_pad)
@@ -69,6 +71,7 @@ class GamepadTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         btn_row.addWidget(help_btn)
@@ -76,6 +79,7 @@ class GamepadTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         btn_row.addWidget(settings_btn)

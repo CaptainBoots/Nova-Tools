@@ -2,7 +2,7 @@
 core/spotify_api.py
 ─────────────────────
 Spotify Web API access for the "now playing" data, using the
-Authorization Code + PKCE OAuth flow. This is the flow Spotify
+Authorisation Code + PKCE OAuth flow. This is the flow Spotify
 recommends for desktop/native apps precisely because it needs no
 client secret embedded in the app — only a public client_id (the user
 enters their own, registered free at
@@ -15,7 +15,7 @@ Spotify's real login page, then a plain http.server on 127.0.0.1
 catches the single redirect and shuts itself down immediately after.
 Spotify's login page, 2FA, and password entry are entirely Spotify's
 own UI — this app never sees a password, only the short-lived
-authorization code Spotify redirects back with.
+authorisation code Spotify redirects back with.
 
 Pure backend — no Qt imports here, same separation as
 core/vrchat_api.py-style modules in VRChat-Tools generally. The only
@@ -57,7 +57,7 @@ class SpotifyAPIError(Exception):
 
 
 class SpotifyAuthTimeout(SpotifyAPIError):
-    """Nobody completed the browser authorization within the timeout."""
+    """Nobody completed the browser authorisation within the timeout."""
 
 
 class SpotifyAuthDenied(SpotifyAPIError):
@@ -89,6 +89,7 @@ class _CallbackServer:
         self._event = threading.Event()
 
         handler = self._make_handler()
+
         self._httpd = HTTPServer((CALLBACK_HOST, 0), handler)  # port 0 = OS picks a free one
         self.port = self._httpd.server_address[1]
 
@@ -96,6 +97,7 @@ class _CallbackServer:
         outer = self
 
         class _Handler(BaseHTTPRequestHandler):
+
             def do_GET(self):
                 parsed = urllib.parse.urlparse(self.path)
                 if parsed.path != CALLBACK_PATH:
@@ -124,7 +126,8 @@ class _CallbackServer:
                 outer._result["error"] = error
                 outer._event.set()
 
-            def log_message(self, fmt, *args):
+
+            def log_message(self, format, *args):
                 pass  # don't spam stdout with HTTP access logs for a one-shot local server
 
         return _Handler
@@ -133,7 +136,7 @@ class _CallbackServer:
         """Blocks (call from a background thread, not the UI thread)
         until the browser redirect arrives or timeout_sec elapses.
         Raises SpotifyAuthTimeout / SpotifyAuthDenied, or returns the
-        authorization code string on success."""
+        authorisation code string on success."""
         server_thread = threading.Thread(target=self._httpd.handle_request, daemon=True)
         server_thread.start()
 
@@ -150,6 +153,7 @@ class _CallbackServer:
         code = self._result.get("code")
         if not code:
             raise SpotifyAPIError("No authorization code received.")
+
         return code
 
 
@@ -227,6 +231,7 @@ def connect_blocking(client_id: str, timeout_sec: float = 120.0) -> dict:
     state = secrets.token_urlsafe(16)
 
     server = _CallbackServer(expected_state=state, timeout_sec=timeout_sec)
+
     redirect_uri = f"http://{CALLBACK_HOST}:{server.port}{CALLBACK_PATH}"
     url = build_authorize_url(client_id, redirect_uri, challenge, state)
 

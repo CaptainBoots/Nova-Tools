@@ -1,8 +1,7 @@
 """
 core/vrlog_tail.py
 ────────────────────
-Tails VRChat's own local log file (the same file the game itself writes
-to, under %USERPROFILE%\\AppData\\LocalLow\\VRChat\\VRChat\\ on Windows)
+Tails VRChat's own local log file (the same file the game itself writes to, under %USERPROFILE%\\AppData\\LocalLow\\VRChat\\VRChat\\ on Windows)
 and turns lines into structured events for the "current instance" tabs.
 
 This only ever reads the local player's own log about their own client
@@ -122,6 +121,7 @@ class VRLogTail:
             return []
         events: list[LogEvent] = []
         try:
+
             with open(self._path, "r", encoding="utf-8", errors="replace") as f:
                 f.seek(self._pos)
                 new_text = f.read()

@@ -14,6 +14,7 @@ from __future__ import annotations
 import time
 
 try:
+
     from pynput.keyboard import Controller, Key, KeyCode
     _controller = Controller()
     _AVAILABLE = True
@@ -64,6 +65,7 @@ def _resolve(key_name: str):
         attr = _NAMED_KEYS[name]
         return getattr(Key, attr)
     if len(name) == 1:
+
         return KeyCode.from_char(name)
     # Fall back to treating an unrecognised multi-char name as a Key
     # attribute if pynput happens to have one (e.g. "menu", "print_screen").
@@ -89,12 +91,14 @@ def press_keys(keys: list, hold_ms: int = 0):
     pressed = []
     try:
         for k in resolved:
+
             _controller.press(k)
             pressed.append(k)
         time.sleep(max(hold_ms, 40) / 1000.0)
     finally:
         for k in reversed(pressed):
             try:
+
                 _controller.release(k)
             except Exception:
                 pass

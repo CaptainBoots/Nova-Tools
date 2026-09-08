@@ -22,6 +22,7 @@ import threading
 import time
 from dataclasses import dataclass, field
 
+
 from core.source import OscSource
 from pythonosc.udp_client import SimpleUDPClient
 
@@ -129,6 +130,7 @@ class OscRouter:
 
         self._running = True
         self._thread  = threading.Thread(target=self._loop, daemon=True)
+
         self._thread.start()
         return {"sources": failed_sources, "outputs": failed_outputs}
 

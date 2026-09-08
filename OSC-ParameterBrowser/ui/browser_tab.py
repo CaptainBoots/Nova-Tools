@@ -12,6 +12,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView,
 )
 
+
 from core.osc_bridge import ParamListener, make_client, send_osc
 from ui import theme
 from ui.theme import StripeBackground
@@ -59,6 +60,7 @@ class BrowserTab(StripeBackground):
         # ── Config row (connection fields) ───────────────────────────────────
         cfg_row = QHBoxLayout()
 
+
         def lbl(text):
             l = theme.TextChip(text, fg=theme.SUBTEXT, padding="2px 6px")
             l.setFont(theme.qt_font(9))
@@ -67,6 +69,7 @@ class BrowserTab(StripeBackground):
             return l
 
         def entry(default, width):
+
             e = QLineEdit(default)
             e.setFixedWidth(width)
             e.setFont(theme.qt_font(9))
@@ -109,6 +112,7 @@ class BrowserTab(StripeBackground):
             b = QPushButton(text)
             b.setFont(theme.qt_font(10, bold=True))
             b.setMinimumWidth(110)
+
             b.setCursor(Qt.PointingHandCursor)
             b.clicked.connect(cmd)
             btn_row.addWidget(b)
@@ -116,6 +120,7 @@ class BrowserTab(StripeBackground):
         clear_btn = QPushButton("Clear Data")
         clear_btn.setStyleSheet(theme.subtle_button_qss())
         clear_btn.setFont(theme.qt_font(10))
+
         clear_btn.setCursor(Qt.PointingHandCursor)
         clear_btn.clicked.connect(self._clear)
         btn_row.addWidget(clear_btn)
@@ -125,6 +130,7 @@ class BrowserTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         btn_row.addWidget(help_btn)
@@ -132,6 +138,7 @@ class BrowserTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         btn_row.addWidget(settings_btn)
@@ -197,6 +204,7 @@ class BrowserTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.ACCENT2}; }}"
         )
         send_btn.setFont(theme.qt_font(9))
+
         send_btn.setCursor(Qt.PointingHandCursor)
         send_btn.clicked.connect(self._send)
         inject_row.addWidget(send_btn)
@@ -208,13 +216,19 @@ class BrowserTab(StripeBackground):
         self._table = QTableWidget(0, 4)
         self._table.setHorizontalHeaderLabels(["Path", "Value", "Type", "Ts"])
         self._table.verticalHeader().setVisible(False)
+
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
+
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setShowGrid(False)
         self._table.setAlternatingRowColors(False)
+
         self._table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
+
         self._table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeToContents)
+
         self._table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeToContents)
+
         self._table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeToContents)
         self._table.setFont(theme.qt_font(9))
         self._table.setStyleSheet(
@@ -259,6 +273,7 @@ class BrowserTab(StripeBackground):
     # ── Listener control ─────────────────────────────────────────────────────
 
     def _start(self):
+
         if self._listener is not None and self._listener.running:
             return
         try:
@@ -275,6 +290,7 @@ class BrowserTab(StripeBackground):
             on_param=lambda addr, val, typ, ts: self._bridge.param_signal.emit(addr, val, typ, ts),
             on_error=lambda msg: self._bridge.error_signal.emit(msg),
         )
+
         self._listener.start()
         self._dot.setStyleSheet(f"color: {theme.GREEN}; background: transparent; border: none;")
         self._status_lbl.setText(f"Status: Listening on port {port}...")
@@ -282,6 +298,7 @@ class BrowserTab(StripeBackground):
 
     def _stop(self):
         if self._listener is not None:
+
             self._listener.stop()
         self._dot.setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
         self._status_lbl.setText("Status: Stopped")
@@ -322,6 +339,7 @@ class BrowserTab(StripeBackground):
         for r, (path, val, typ, ts) in enumerate(rows):
             for c, text in enumerate((path, str(val), typ, ts)):
                 item = QTableWidgetItem(text)
+
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(r, c, item)
 
@@ -341,6 +359,7 @@ class BrowserTab(StripeBackground):
     # ── Send / inject ─────────────────────────────────────────────────────────
 
     def _send(self):
+
         from core.osc_bridge import PYTHON_OSC
         if not PYTHON_OSC:
             self._status_lbl.setText("Status: python-osc package missing.")
@@ -388,6 +407,7 @@ class BrowserTab(StripeBackground):
 
     def destroy_listener(self):
         if self._listener is not None:
+
             self._listener.stop()
 
     # ── State export/import (for live theme rebuilds in app.py) ────────────
@@ -406,14 +426,17 @@ class BrowserTab(StripeBackground):
         """Restore a previous instance's captured data and, if it was
         listening, re-point the still-running listener's callbacks at
         this instance's bridge and reflect that in the status/dot."""
+
         self._params = dict(state.get("params", {}))
 
         listener = state.get("listener")
+
         if listener is not None and listener.running:
             listener._on_param = lambda addr, val, typ, ts: self._bridge.param_signal.emit(addr, val, typ, ts)
             listener._on_error = lambda msg: self._bridge.error_signal.emit(msg)
             self._listener = listener
             self._dot.setStyleSheet(f"color: {theme.GREEN}; background: transparent; border: none;")
+
             self._status_lbl.setText(f"Status: Listening on port {listener.port}...")
             self._status_lbl.setStyleSheet(f"color: {theme.GREEN}; background: transparent; border: none;")
 

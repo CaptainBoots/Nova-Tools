@@ -8,7 +8,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 NAME = "Script Maker"
 TOOL_ID = "000106"
 

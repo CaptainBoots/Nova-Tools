@@ -1,3 +1,4 @@
+# noinspection GrazieInspection
 """
 modules/registry.py
 ───────────────────
@@ -114,6 +115,7 @@ def _render_gpu_name(snap, slot):
     gpu = _gpu_data(snap, slot)
 
     if gpu:
+
         return gpu.get("name", "GPU Unknown")
 
     return "GPU Unknown"
@@ -123,6 +125,7 @@ def _render_gpu_load(snap, slot):
     gpu = _gpu_data(snap, slot)
 
     return _fmt(
+
         gpu.get("load") if gpu else None,
         "%",
     )
@@ -132,6 +135,7 @@ def _render_gpu_temp(snap, slot):
     gpu = _gpu_data(snap, slot)
 
     return _fmt(
+
         gpu.get("temp") if gpu else None,
         "℃",
     )
@@ -141,6 +145,7 @@ def _render_gpu_power(snap, slot):
     gpu = _gpu_data(snap, slot)
 
     return _fmt(
+
         gpu.get("power") if gpu else None,
         "w",
     )
@@ -154,6 +159,7 @@ def _render_vram_used(snap, slot):
     if not gpu:
         return "N/A"
 
+
     return f"{gpu.get('vram_used', 0.0):.1f}GB"
 
 
@@ -162,6 +168,7 @@ def _render_vram_total(snap, slot):
 
     if not gpu:
         return "N/A"
+
 
     return f"{gpu.get('vram_total', '?')}GB"
 
@@ -173,8 +180,11 @@ def _render_vram_combined(snap, slot):
         return "N/A"
 
     return (
+
         f"{gpu.get('vram_type', 'GDDR')} "
+
         f"{gpu.get('vram_used', 0.0):.1f}GB/"
+
         f"{gpu.get('vram_total', '?')}GB"
     )
 

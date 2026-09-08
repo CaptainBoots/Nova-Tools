@@ -10,6 +10,7 @@ bool threshold) — handy for turning one avatar parameter's range into
 another's, or into a driving OSC signal for a different app.
 """
 
+
 from core.conditions import cast_value, remap
 
 ID = "send_osc"

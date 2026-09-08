@@ -17,7 +17,9 @@ from PySide6.QtWidgets import (
     QPushButton, QComboBox, QFileDialog,
 )
 
+
 from core.registry import ACTIONS, ACTION_BY_ID, NON_NESTABLE_KINDS
+
 from core.models import Action
 from Actions.chatbox_action import CHATBOX_CHANNELS
 from ui import theme
@@ -116,6 +118,7 @@ class ActionRow(QFrame):
 
         if self.on_move_up is not None:
             up_btn = QLabel("▲")
+
             up_btn.setCursor(Qt.PointingHandCursor)
             up_btn.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
             up_btn.setFont(theme.qt_font(8))
@@ -124,6 +127,7 @@ class ActionRow(QFrame):
 
         if self.on_move_down is not None:
             down_btn = QLabel("▼")
+
             down_btn.setCursor(Qt.PointingHandCursor)
             down_btn.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
             down_btn.setFont(theme.qt_font(8))
@@ -138,6 +142,7 @@ class ActionRow(QFrame):
         hdr.addStretch(1)
 
         rm_btn = QLabel("✕")
+
         rm_btn.setCursor(Qt.PointingHandCursor)
         rm_btn.setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
         rm_btn.setFont(theme.qt_font(9))
@@ -491,12 +496,14 @@ def _build_random(row, layout, action: Action):
         list_wrap.removeWidget(sub_row)
         sub_row.setParent(None)
         sub_row.deleteLater()
+
         row._sub_rows.remove(sub_row)
 
     def _add_sub(sub_action=None):
         sub_action = sub_action or Action(kind="wait")
         sub_row = ActionRow(sub_action, on_remove=_remove_sub, nestable=False)
         list_wrap.addWidget(sub_row)
+
         row._sub_rows.append(sub_row)
 
     for sub in action.sub_actions:

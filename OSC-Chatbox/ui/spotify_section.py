@@ -2,7 +2,7 @@
 ui/spotify_section.py
 ────────────────────────
 The "Spotify" subsection inside Settings -> Media. Deliberately NOT a
-popup dialog — everything lives inline in the same collapsible Media
+popup dialogue — everything lives inline in the same collapsible Media
 section as the priority list, per how this was asked for.
 
 Connecting still has to leave the app at some point (Spotify's login
@@ -21,7 +21,7 @@ Threading: the OAuth round-trip (open browser, wait up to 2 minutes for
 the redirect, exchange the code) blocks on network + user action, so it
 runs on a QThread. Signal-to-signal relay via a real QObject
 (_ConnectRelay) — same pattern and same reasoning as
-ui/login_dialog.py's _ResultRelay in VRChat Social Logger: a bare
+ui/login_dialogue.py's _ResultRelay in VRChat Social Logger: a bare
 Python closure has no .thread() for Qt to inspect, so connecting a
 worker's signal straight to one doesn't reliably queue across threads.
 """
@@ -36,7 +36,7 @@ from PySide6.QtWidgets import (
 from core import spotify_api
 from core.secure_store import WrongPassword, CorruptBlob
 from ui import theme
-from ui.master_password_dialog import open_master_password_prompt
+from ui.master_password_dialogue import open_master_password_prompt
 
 REDIRECT_NOTE = (
     "Needs your own free Spotify client ID (Dashboard -> Create app -> "
@@ -254,7 +254,9 @@ def build_spotify_section(parent_layout: QVBoxLayout, dlg, cfg: dict, save_cb, s
     def _stop_thread():
         thread = _thread_state["thread"]
         if thread is not None:
+
             thread.quit()
+
             thread.wait()
         _thread_state["thread"] = None
         _thread_state["worker"] = None
@@ -282,6 +284,7 @@ def build_spotify_section(parent_layout: QVBoxLayout, dlg, cfg: dict, save_cb, s
             return False
 
         client_id = client_id_edit.text().strip()
+
         session = spotify_api.SpotifySession(client_id, tokens, on_tokens_changed=_on_tokens_changed)
         spotify_ctx.set_session(session)
         return True
@@ -318,8 +321,11 @@ def build_spotify_section(parent_layout: QVBoxLayout, dlg, cfg: dict, save_cb, s
 
         thread.finished.connect(worker.deleteLater)
         thread.finished.connect(thread.deleteLater)
+
         _thread_state["thread"] = thread
+
         _thread_state["worker"] = worker
+
         _thread_state["relay"] = relay
         thread.start()
 

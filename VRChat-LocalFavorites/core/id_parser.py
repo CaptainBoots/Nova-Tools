@@ -2,7 +2,7 @@
 core/id_parser.py
 ────────────────────
 Extracts VRChat IDs from either a bare ID or a pasted vrchat.com URL —
-used by the "add favorite" dialog so pasting a link works the same as
+used by the "add favorite" dialogue so pasting a link works the same as
 typing the ID directly. Pure string parsing, no network calls.
 """
 
@@ -45,6 +45,7 @@ def extract_world_and_instance(text: str) -> tuple[str, str] | None:
         parsed = urlparse(text)
         qs = parse_qs(parsed.query)
         if qs.get("instanceId"):
+
             return world_id, qs["instanceId"][0]
     except ValueError:
         pass

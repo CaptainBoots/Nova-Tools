@@ -20,8 +20,11 @@ from __future__ import annotations
 import threading
 import time
 
+
 from core.vrchat_api import VRChatAPI, VRChatAPIError, parse_location
+
 from core.vrlog_tail import VRLogTail
+
 from core.log_writer import RotatingDirLogWriter
 
 FRIEND_POLL_INTERVAL_SEC = 60
@@ -89,6 +92,7 @@ class Engine:
         self._running = True
         self._stop_event.clear()
         self._thread = threading.Thread(target=self._run, daemon=True)
+
         self._thread.start()
 
     def stop(self):
@@ -163,6 +167,7 @@ class Engine:
     def _emit_friend_event(self, event: dict):
         event = {"timestamp": _now_ts(), **event}
         if self._friends_writer is not None:
+
             self._friends_writer.write_event(event)
         self._on_friend_event(event)
 
@@ -179,6 +184,7 @@ class Engine:
             "extra": ev.extra,
         }
         if self._instance_writer is not None:
+
             self._instance_writer.write_event(event)
         self._on_instance_event(event)
 

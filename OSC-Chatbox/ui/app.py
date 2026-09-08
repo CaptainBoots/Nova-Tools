@@ -6,7 +6,7 @@ Root window (Qt). Creates the two-tab notebook and wires together:
   - ChatboxTab  (live preview + controls)
   - OSC loop start/stop/restart
   - Config load/save
-  - Settings dialog
+  - Settings dialogue
   - Theme selection
 
 The OSC loop itself (osc_loop.py) is unchanged — it's plain threading, no
@@ -29,8 +29,8 @@ from core import spotify_api
 from monitors import media as media_mod
 from ui.builder import BuilderTab
 from ui.chatbox_tab import ChatboxTab
-from ui.help_dialog import open_help
-from ui.settings_dialog import open_settings
+from ui.help_dialogue import open_help
+from ui.settings_dialogue import open_settings
 from ui import theme
 
 try:
@@ -47,9 +47,9 @@ class _LoopBridge(QObject):
 
 
 class _SpotifyCtx:
-    """Owns the live Spotify session across Settings dialog open/close —
-    the dialog itself is rebuilt from scratch every time it's opened
-    (see ui/settings_dialog.py), so anything that needs to survive that
+    """Owns the live Spotify session across Settings dialogue open/close —
+    the dialogue itself is rebuilt from scratch every time it's opened
+    (see ui/settings_dialogue.py), so anything that needs to survive that
     (the actual connected session) has to live up here in App instead."""
     def __init__(self, secure_store: SecureStore):
         self.secure_store = secure_store
@@ -165,6 +165,7 @@ class App(QMainWindow):
         # real native platform code that needs testing on actual Windows to
         # get right, not something to guess at blind. Flagging it as a
         # possible follow-up rather than shipping an unverified version.
+
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         saved_opacity = self._cfg.get("transparency_opacity", 1.0)
         self._bg_alpha = max(0.0, min(1.0, float(saved_opacity)))
@@ -265,7 +266,7 @@ class App(QMainWindow):
         self._cfg["progress_empty"]   = self._state.progress_empty
         save_config(self._cfg)
 
-    # ── Settings dialog ───────────────────────────────────────────────────────
+    # ── Settings dialogue ───────────────────────────────────────────────────────
 
     def _open_settings(self):
         open_settings(
@@ -302,6 +303,7 @@ class App(QMainWindow):
         theme.set_theme(mode)
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
         self._rebuild_ui()
 

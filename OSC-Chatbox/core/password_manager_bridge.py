@@ -14,14 +14,14 @@ purpose:
     Windows), so putting a secret there would leak it exactly the way
     we're trying to avoid.
   - Nothing in this module logs, prints, or writes the retrieved value
-    anywhere. The caller (ui/master_password_dialog.py) is responsible
+    anywhere. The caller (ui/master_password_dialogue.py) is responsible
     for holding it only in memory for as short a time as possible.
   - `shell=False` always — avoids both shell-injection risk and the
     secret ever touching shell history.
   - If a CLI isn't installed, isn't authenticated, or the vault is
     locked, every function here fails quietly (returns None) rather
     than raising — a "not set up" password manager should never break
-    the dialog, just make that button not do anything useful.
+    the dialogue, just make that button not do anything useful.
 """
 
 from __future__ import annotations
@@ -56,7 +56,7 @@ def _run_capture(cmd: list[str], input_text: str | None = None) -> str | None:
 
 def available_managers() -> list[str]:
     """Which supported CLIs are actually installed on this machine —
-    used by the dialog to decide which buttons are worth showing at
+    used by the dialogue to decide which buttons are worth showing at
     all, rather than presenting three buttons where two always fail."""
     found = []
     if shutil.which("op"):

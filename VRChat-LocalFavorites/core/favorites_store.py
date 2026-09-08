@@ -31,7 +31,7 @@ CATEGORIES = ("worlds", "avatars", "players", "instances")
 # Group names come from the person typing into a text field, and they
 # become a filename directly — so this is the one place in this file
 # that needs to be defensive about path traversal (e.g. "../../evil")
-# or reserved characters, same principle as the artifact-storage key
+# or reserved characters, same principle as the artefact-storage key
 # rules elsewhere in this codebase.
 _UNSAFE_CHARS_RE = re.compile(r"[^A-Za-z0-9 _\-\.]+")
 

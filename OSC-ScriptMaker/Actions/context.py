@@ -16,6 +16,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Any
 
+
 from core.osc_io import OSCSenderPool
 
 

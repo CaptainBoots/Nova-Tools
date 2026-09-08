@@ -88,6 +88,7 @@ class ParamListener:
             return
         self.running = True
         self._thread = threading.Thread(target=self._loop, daemon=True)
+
         self._thread.start()
 
     def stop(self):

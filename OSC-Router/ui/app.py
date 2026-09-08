@@ -12,11 +12,14 @@ from PySide6.QtWidgets import (
 )
 
 from config import load_config, save_config, get_defaults
+
 from core.router import OscRouter, OutputTarget
+
 from core.source import OscSource
-from ui.help_dialog import open_help
+from ui.help_dialogue import open_help
+
 from ui.router_tab import RouterTab
-from ui.settings_dialog import open_settings
+from ui.settings_dialogue import open_settings
 from ui import theme
 
 try:
@@ -161,9 +164,10 @@ class App(QMainWindow):
         self._cfg.update(keep)
         self._save()
 
-    # ── Dialogs ───────────────────────────────────────────────────────────────
+    # ── Dialogues ───────────────────────────────────────────────────────────────
 
     def _open_settings(self):
+
         open_settings(
             parent   = self,
             cfg      = self._cfg,
@@ -183,6 +187,7 @@ class App(QMainWindow):
         theme.set_theme(mode)
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
         self._rebuild_ui()
 

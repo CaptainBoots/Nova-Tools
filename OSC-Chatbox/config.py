@@ -17,8 +17,11 @@ from core.state import (
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR  = os.path.dirname(SCRIPT_DIR)
+
 CONFIG_DIR  = os.path.join(PARENT_DIR, "configs")
+
 CONFIG_FILE = os.path.join(CONFIG_DIR, "chatbox_config.json")
+
 SPOTIFY_BLOB_FILE = os.path.join(CONFIG_DIR, "spotify_session.blob")
 
 

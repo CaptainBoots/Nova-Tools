@@ -3,8 +3,8 @@ ui/dev_menu.py
 ──────────────
 Developer menu modal: testing tools and internal diagnostics.
 
-Structure mirrors settings_dialog.py — scrollable area with a fixed
-header. Opened from the Settings dialog when Testing Mode is enabled.
+Structure mirrors settings_dialogue.py — scrollable area with a fixed
+header. Opened from the Settings dialogue when Testing Mode is enabled.
 """
 
 from PySide6.QtCore import Qt
@@ -65,6 +65,7 @@ def open_dev_menu(parent, state: AppState, cfg: dict, save_cb):
         lbl = QLabel(label)
         lbl.setStyleSheet(f"color: {theme.ACCENT2}; background-color: {theme.BORDER}; padding: 3px 10px; border-radius: 3px;")
         lbl.setFont(qt_font(10, bold=True))
+
         lbl.setAlignment(Qt.AlignHCenter)
         inner_layout.addSpacing(16)
         row = QHBoxLayout()

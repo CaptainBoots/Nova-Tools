@@ -36,6 +36,7 @@ def _label_btn(
     bg = bg or theme.PANEL
 
     lbl = QLabel(text)
+
     lbl.setCursor(Qt.PointingHandCursor)
     lbl.setStyleSheet(
         f"color: {fg}; "
@@ -98,10 +99,11 @@ class ToastNotification(QLabel):
             f"font-weight: bold;"
         )
         self.setFont(theme.qt_font(9, bold=True))
+
         self.setAttribute(Qt.WA_TransparentForMouseEvents)
         self.adjustSize()
 
-        # Center toast at the top of the tab
+        # Centre toast at the top of the tab
         px = (parent.width() - self.width()) // 2
         self.move(max(10, px), 10)
         self.show()
@@ -129,10 +131,12 @@ class BuilderTab(StripeBackground):
 
     # ── System Clipboard Engine ───────────────────────────────────────────
 
+
     def _copy_to_clipboard(self, prefix: str, data: dict):
         clipboard = QGuiApplication.clipboard()
         payload = f"{prefix}:{json.dumps(data)}"
         clipboard.setText(payload)
+
 
     def _read_from_clipboard(self, prefix: str):
         clipboard = QGuiApplication.clipboard()
@@ -144,6 +148,7 @@ class BuilderTab(StripeBackground):
             except json.JSONDecodeError:
                 return None
         return None
+
 
     def _has_clipboard_prefix(self, prefix: str) -> bool:
         clipboard = QGuiApplication.clipboard()
@@ -395,6 +400,7 @@ class BuilderTab(StripeBackground):
         )
 
         dur_entry.setFixedWidth(34)
+
         dur_entry.setAlignment(Qt.AlignCenter)
         dur_entry.setFont(
             theme.qt_font(
@@ -439,7 +445,7 @@ class BuilderTab(StripeBackground):
 
         minus_lbl = QLabel("-")
         minus_lbl.setCursor(
-            Qt.PointingHandCursor
+            Qt.CursorShape.PointingHandCursor
         )
 
         minus_lbl.setStyleSheet(
@@ -463,7 +469,7 @@ class BuilderTab(StripeBackground):
 
         plus_lbl = QLabel("+")
         plus_lbl.setCursor(
-            Qt.PointingHandCursor
+            Qt.CursorShape.PointingHandCursor
         )
 
         plus_lbl.setStyleSheet(
@@ -671,7 +677,7 @@ class BuilderTab(StripeBackground):
 
         up_lbl = QLabel("▲")
         up_lbl.setCursor(
-            Qt.PointingHandCursor
+            Qt.CursorShape.PointingHandCursor
         )
 
         up_lbl.setStyleSheet(
@@ -695,7 +701,7 @@ class BuilderTab(StripeBackground):
 
         down_lbl = QLabel("▼")
         down_lbl.setCursor(
-            Qt.PointingHandCursor
+            Qt.CursorShape.PointingHandCursor
         )
 
         down_lbl.setStyleSheet(
@@ -871,7 +877,7 @@ class BuilderTab(StripeBackground):
             if len(slot["modules"]) > 1:
                 x_lbl = QLabel("✕")
                 x_lbl.setCursor(
-                    Qt.PointingHandCursor
+                    Qt.CursorShape.PointingHandCursor
                 )
 
                 x_lbl.setStyleSheet(
@@ -1256,6 +1262,7 @@ class BuilderTab(StripeBackground):
                 action = sub.addAction(
                     m["label"]
                 )
+
 
                 action.triggered.connect(
                     lambda _checked=False,

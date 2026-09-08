@@ -77,6 +77,7 @@ class FeedList(QWidget):
 
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
+
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._scroll.setStyleSheet("background: transparent; border: none;")
 
@@ -89,6 +90,7 @@ class FeedList(QWidget):
         self._empty_lbl = QLabel(empty_text)
         self._empty_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         self._empty_lbl.setFont(theme.qt_font(9))
+
         self._empty_lbl.setAlignment(Qt.AlignCenter)
         self._inner_layout.addWidget(self._empty_lbl)
         self._inner_layout.addStretch(1)

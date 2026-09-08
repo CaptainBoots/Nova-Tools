@@ -140,6 +140,7 @@ class VRChatAPI:
         """Friends VRChat's own API already shares with the logged-in
         user — this never touches any other user's data."""
         params = {"offline": str(offline).lower(), "n": n, "offset": offset}
+
         return self._request("GET", "/auth/user/friends", params=params)
 
     def get_all_friends(self) -> list[dict]:
@@ -198,7 +199,7 @@ def parse_location(location: str) -> tuple[str, str] | None:
     """Split a VRChat 'location' string (as seen in friend data or the
     local log, e.g. 'wrld_abc123:12345~region(us)') into
     (world_id, instance_id). Returns None for sentinel values like
-    'private', 'offline', or 'traveling'."""
+    'private', 'offline', or 'travelling'."""
     if not location or location in ("private", "offline", "traveling"):
         return None
     if ":" not in location:

@@ -2,7 +2,7 @@
 ui/worker_utils.py
 ────────────────────
 Shared helper implementing the QObject-relay pattern established while
-debugging VRChat-Social-Logger's login dialog: connecting a background
+debugging VRChat-Social-Logger's login dialogue: connecting a background
 QThread's signal straight to a plain Python closure does NOT reliably
 queue the call onto the main thread in PySide6 — only a genuine bound
 QObject method does, since AutoConnection (and even an explicit
@@ -10,11 +10,11 @@ Qt.QueuedConnection) can only detect "queue this" by inspecting the
 *receiver's* .thread(), and a bare closure has none. That silently let
 worker-thread code touch widgets directly from a background thread,
 which reproducibly aborted the whole process. Full writeup lives in
-that project's ui/login_dialog.py, in the _ResultRelay class docstring.
+that project's ui/login_dialogue.py, in the _ResultRelay class docstring.
 
 run_worker() does the thread + relay wiring once, correctly, so every
-dialog here just gets a plain function to call, a success closure, and
-a failure closure — no thread lifecycle code to get wrong per-dialog.
+dialogue here just gets a plain function to call, a success closure, and
+a failure closure — no thread lifecycle code to get wrong per-dialogue.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ class _CallableWorker(QObject):
 
 
 def run_worker(parent_qobject, fn, on_succeeded, on_failed, state: dict):
-    """parent_qobject: a real QObject (typically the dialog) to parent
+    """parent_qobject: a real QObject (typically the dialogue) to parent
     the thread/relay to.
     fn: a zero-argument callable doing the blocking work (a network
     call, etc) — call it via a lambda/partial if it needs arguments.
@@ -75,12 +75,14 @@ def run_worker(parent_qobject, fn, on_succeeded, on_failed, state: dict):
 
 
 def stop_worker(state: dict):
-    """Call from a success/failure handler (or before closing a dialog
+    """Call from a success/failure handler (or before closing a dialogue
     that isn't busy) to cleanly join the background thread. Safe to
     call when nothing is running."""
     thread = state.get("thread")
     if thread is not None:
+
         thread.quit()
+
         thread.wait()  # run() already returned by the time any signal fires, so this is near-instant
     state["thread"] = None
     state["worker"] = None
@@ -88,10 +90,11 @@ def stop_worker(state: dict):
 
 def install_busy_close_guard(dlg, state: dict):
     """Refuse to close `dlg` (native X button, Alt+F4, etc.) while
-    state["busy"] is True — destroying a dialog while its child QThread
+    state["busy"] is True — destroying a dialogue while its child QThread
     is still running is a fatal error in Qt (aborts the whole process,
-    not just the dialog). Callers should set state["busy"] themselves
+    not just the dialogue). Callers should set state["busy"] themselves
     around each run_worker() call."""
+
     def _closeEvent(event):
         if state.get("busy"):
             event.ignore()

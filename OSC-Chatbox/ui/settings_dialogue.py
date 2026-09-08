@@ -1,5 +1,5 @@
 """
-ui/settings_dialog.py
+ui/settings_dialogue.py
 ──────────────────────────
 Same sections, same order as the original Tk version:
   Themes (collapsible) → Background Transparency → Config reset →
@@ -28,6 +28,7 @@ def _section_label(parent_layout, text):
     lbl = QLabel(text)
     lbl.setStyleSheet(f"color: {theme.ACCENT2}; background: transparent; border: none;")
     lbl.setFont(theme.qt_font(10, bold=True))
+
     lbl.setAlignment(Qt.AlignHCenter)
     parent_layout.addSpacing(12)
     parent_layout.addWidget(lbl)
@@ -75,6 +76,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
 
     # ── Themes (collapsible) ─────────────────────────────────────────────
     theme_header = QWidget()
+
     theme_header.setCursor(Qt.PointingHandCursor)
     theme_header_layout = QHBoxLayout(theme_header)
     theme_header_layout.setContentsMargins(0, 8, 0, 0)
@@ -121,6 +123,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
                 f"color: {theme.ACCENT2 if is_sel else theme.TEXT}; background: transparent;"
             )
 
+
     def _select_theme(mode):
         theme_state["selected"] = mode
         _refresh_theme_rows()
@@ -129,6 +132,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
 
     for mode, label_text in THEME_LABELS.items():
         row = QWidget()
+
         row.setCursor(Qt.PointingHandCursor)
         row_layout = QHBoxLayout(row)
         row_layout.setContentsMargins(0, 3, 0, 3)
@@ -188,6 +192,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     # this one section since they're both "how media info gets picked",
     # not two separate concerns.
     media_header = QWidget()
+
     media_header.setCursor(Qt.PointingHandCursor)
     media_header_layout = QHBoxLayout(media_header)
     media_header_layout.setContentsMargins(0, 8, 0, 0)
@@ -253,6 +258,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     inner_layout.addWidget(trans_hint)
 
     current_alpha = cfg.get("transparency_opacity", 1.0)
+
     opacity_slider = QSlider(Qt.Horizontal)
     opacity_slider.setStyleSheet(f"""
         QSlider::groove:horizontal {{
@@ -276,6 +282,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     opacity_slider.setMaximum(100)  # widgets stay opaque/clickable at any level.
     opacity_slider.setValue(int(current_alpha * 100))
 
+
     def _on_slider_change(val):
         alpha_val = val / 100.0
         opacity_cb(alpha_val)
@@ -292,6 +299,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     reset_btn.setFont(theme.qt_font(9, bold=True))
 
     def _do_reset_confirm():
+
         if QMessageBox.question(dlg, "Reset", "Reset all settings to defaults?") == QMessageBox.Yes:
             reset_cb()
 
@@ -313,6 +321,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
             ("Empty",  state.progress_empty),
     )):
         cap = QLabel(lbl_text)
+
         cap.setAlignment(Qt.AlignHCenter)
         cap.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         cap.setFont(theme.qt_font(8))
@@ -320,6 +329,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
 
         e = QLineEdit(val)
         e.setFixedWidth(40)
+
         e.setAlignment(Qt.AlignHCenter)
         e.setFont(theme.qt_font(9))
         chars_grid.addWidget(e, 1, col)
@@ -332,13 +342,13 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     preview_row = QHBoxLayout()
     preview_row.addStretch(1)
     previews = []
-    for ch, color in (
+    for ch, colour in (
             (state.progress_filled, theme.TEXT),
             (state.progress_border, theme.TEXT),
             (state.progress_empty,  theme.ACCENT2),
     ):
         p = QLabel(ch * 8)
-        p.setStyleSheet(f"color: {color}; background-color: {theme.BORDER}; padding: 2px 4px; border: none;")
+        p.setStyleSheet(f"color: {colour}; background-color: {theme.BORDER}; padding: 2px 4px; border: none;")
         p.setFont(theme.qt_font(10))
         preview_row.addWidget(p)
         previews.append(p)
@@ -349,9 +359,11 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
         state.progress_filled = normalize_char(entries[0].text(), DEFAULT_PROGRESS_FILLED)
         state.progress_border = normalize_char(entries[1].text(), DEFAULT_PROGRESS_BORDER)
         state.progress_empty  = normalize_char(entries[2].text(), DEFAULT_PROGRESS_EMPTY)
+
         for entry, ch in zip(entries, (state.progress_filled, state.progress_border, state.progress_empty)):
             if entry.text() != ch:
                 entry.setText(ch)
+
         for prev, ch in zip(previews, (state.progress_filled, state.progress_border, state.progress_empty)):
             prev.setText(ch * 8)
         save_cb()
@@ -403,6 +415,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     lhm_group = QButtonGroup(dlg)
     current_lhm = cfg.get("lhm_prompt", "ask")
 
+
     def _lhm_changed(value):
         cfg["lhm_prompt"] = value
         save_cb()
@@ -411,8 +424,10 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
         rb = QRadioButton(label_text)
         rb.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
         rb.setFont(theme.qt_font(9))
+
         rb.setCursor(Qt.PointingHandCursor)
         rb.setChecked(value == current_lhm)
+
         rb.toggled.connect(lambda checked, v=value: _lhm_changed(v) if checked else None)
         lhm_group.addButton(rb)
         inner_layout.addWidget(rb)
@@ -425,7 +440,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     def _trigger_reset():
         if QMessageBox.question(
                 dlg, "Reset", "Are you sure you want to restore default values?"
-        ) == QMessageBox.Yes:
+        ) == QMessageBox.StandardButton.Yes:
             reset_cb()
             dlg.close()
 

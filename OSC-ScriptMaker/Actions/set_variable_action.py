@@ -7,6 +7,7 @@ or the current trigger value forwarded through. Any script with a
 this is the mechanism scripts use to chain off each other.
 """
 
+
 from core.conditions import cast_value
 
 ID = "set_variable"

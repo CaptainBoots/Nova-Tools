@@ -38,7 +38,7 @@ web, etc.): Windows SMTC and Linux MPRIS both report the *browser* as
 the source unless the site is installed as its own PWA (Chrome/Edge
 "Install as app") — a regular browser tab can't be told apart from any
 other tab in the same browser this way. That's expected, not a bug;
-the "youtube"/"soundcloud"/etc. entries below exist for PWA installs
+the "YouTube"/"soundcloud"/etc. entries below exist for PWA installs
 and dedicated desktop apps, not for matching arbitrary tabs. The
 Spotify entry is the one exception — see monitors/media.py's Spotify
 Web API integration, which identifies Spotify directly instead of
@@ -116,7 +116,7 @@ PLAYER_REGISTRY: list[tuple[str, str, list[str]]] = [
 
     # Just for fun — e621 has no desktop app, MPRIS, or SMTC integration of
     # any kind, so this will essentially never actually match anything for
-    # real. Left in as an easter egg rather than functional detection.
+    # real. Left in as an Easter egg rather than functional detection.
     ("e621",           "e621",          ["e621"]),
 
     # ── 4. Communication utilities ───────────────────────────────────────────
@@ -137,7 +137,7 @@ PLAYER_REGISTRY: list[tuple[str, str, list[str]]] = [
 
 def default_order() -> list[str]:
     """Registry order, as a flat list of ids — the out-of-the-box
-    priority order before any user customization in Settings."""
+    priority order before any user customisation in Settings."""
     return [entry_id for entry_id, _label, _keys in PLAYER_REGISTRY]
 
 

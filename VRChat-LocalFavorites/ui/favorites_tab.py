@@ -15,9 +15,13 @@ from PySide6.QtWidgets import (
     QTreeWidget, QTreeWidgetItem, QInputDialog, QMenu, QMessageBox, QFrame,
 )
 
+
 from core import deep_link
+
 from core.vrchat_api import VRChatAPIError
-from ui.add_favorite_dialog import open_add_favorite_dialog
+
+from ui.add_favorite_dialogue import open_add_favorite_dialogue
+
 from ui.worker_utils import run_worker, stop_worker
 from ui import theme
 
@@ -55,7 +59,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
         add_btn = QPushButton("+ Add Favorite")
         add_btn.setStyleSheet(theme.accent_button_qss())
         add_btn.setFont(theme.qt_font(9, bold=True))
-        add_btn.clicked.connect(self._open_add_dialog)
+        add_btn.clicked.connect(self._open_add_dialogue)
         top_row.addWidget(add_btn)
 
         new_group_btn = QPushButton("+ New Group")
@@ -64,6 +68,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
         top_row.addWidget(new_group_btn)
         top_row.addStretch(1)
         outer.addLayout(top_row)
+
 
         splitter = QSplitter(Qt.Horizontal)
 
@@ -74,6 +79,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
             f"color: {theme.TEXT}; }}"
         )
         self._tree.itemClicked.connect(self._on_tree_item_clicked)
+
         self._tree.setContextMenuPolicy(Qt.CustomContextMenu)
         self._tree.customContextMenuRequested.connect(self._on_tree_context_menu)
         splitter.addWidget(self._tree)
@@ -82,6 +88,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
         self._detail_panel.setStyleSheet(f"background-color: {theme.PANEL}; border: 1px solid {theme.BORDER};")
         self._detail_layout = QVBoxLayout(self._detail_panel)
         self._detail_layout.setContentsMargins(16, 16, 16, 16)
+
         self._detail_layout.setAlignment(Qt.AlignTop)
         splitter.addWidget(self._detail_panel)
 
@@ -120,15 +127,18 @@ class FavoritesCategoryTab(theme.StripeBackground):
         for group in self._store.list_groups(self._category):
             items = self._store.list_items(self._category, group)
             group_node = QTreeWidgetItem([f"{group}  ({len(items)})"])
+
             group_node.setData(0, Qt.UserRole, {"type": "group", "name": group})
             self._tree.addTopLevelItem(group_node)
             for item in items:
                 leaf = QTreeWidgetItem([item.get("name", "?")])
+
                 leaf.setData(0, Qt.UserRole, {"type": "item", "group": group, "item": item})
                 group_node.addChild(leaf)
         self._tree.expandAll()
 
     def _on_tree_item_clicked(self, tree_item, _column):
+
         data = tree_item.data(0, Qt.UserRole)
         if data is None:
             return
@@ -139,8 +149,8 @@ class FavoritesCategoryTab(theme.StripeBackground):
             self._current_selection = None
             self._show_empty_detail()
 
-    def _open_add_dialog(self):
-        open_add_favorite_dialog(self, self._category, self._api, self._store, on_added=self._reload_tree)
+    def _open_add_dialogue(self):
+        open_add_favorite_dialogue(self, self._category, self._api, self._store, on_added=self._reload_tree)
 
     def _create_group(self):
         name, ok = QInputDialog.getText(self, "New Group", "Group name:")
@@ -152,6 +162,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
         tree_item = self._tree.itemAt(pos)
         if tree_item is None:
             return
+
         data = tree_item.data(0, Qt.UserRole)
         if data is None:
             return
@@ -160,6 +171,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
         if data["type"] == "group":
             rename_action = menu.addAction("Rename group")
             delete_action = menu.addAction("Delete group")
+
             chosen = menu.exec(self._tree.viewport().mapToGlobal(pos))
             if chosen == rename_action:
                 new_name, ok = QInputDialog.getText(self, "Rename Group", "New name:", text=data["name"])
@@ -171,6 +183,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
                     self, "Delete Group",
                     f"Delete group \"{data['name']}\" and everything in it? This can't be undone.",
                 )
+
                 if confirm == QMessageBox.Yes:
                     self._store.delete_group(self._category, data["name"])
                     self._reload_tree()
@@ -178,6 +191,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
 
         elif data["type"] == "item":
             remove_action = menu.addAction("Remove from this group")
+
             chosen = menu.exec(self._tree.viewport().mapToGlobal(pos))
             if chosen == remove_action:
                 self._store.remove_item(self._category, data["group"], data["item"].get("id"))
@@ -189,6 +203,7 @@ class FavoritesCategoryTab(theme.StripeBackground):
     def _clear_detail_layout(self):
         while self._detail_layout.count():
             child = self._detail_layout.takeAt(0)
+
             w = child.widget()
             if w is not None:
                 w.deleteLater()

@@ -1,7 +1,7 @@
 """
-ui/help_dialog.py
+ui/help_dialogue.py
 ──────────────────────
-Qt replacement for ui/help_dialog.py. Same paged help content, same
+Qt replacement for ui/help_dialogue.py. Same paged help content, same
 back/next navigation, "Close" on the final page.
 """
 
@@ -225,6 +225,7 @@ def open_help(parent):
     content_lbl.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
     content_lbl.setFont(theme.qt_font(10))
     content_lbl.setWordWrap(True)
+
     content_lbl.setAlignment(Qt.AlignLeft | Qt.AlignTop)
     content_layout.addWidget(content_lbl)
 

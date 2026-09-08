@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.0.0"
+VERSION = "1.0.1"
 NAME = "ChatBox"
 TOOL_ID = "000101"
 
@@ -112,9 +112,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 def _lhm_exe_path() -> str:
     """Resolve the LHM exe path relative to the Nova-Tools root."""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    tools_root = os.path.dirname(script_dir)          # Nova-Tools/
-    toolbox_root = os.path.dirname(tools_root)         # same level as Nova-Tools/
+    script_dir: str = os.path.dirname(os.path.abspath(__file__))
+    tools_root: str = os.path.dirname(script_dir)          # Nova-Tools/
+    toolbox_root: str = os.path.dirname(tools_root)         # same level as Nova-Tools/
     # Try both: tools root sibling and tools root child
     candidates = [
         os.path.join(tools_root, "LibreHardwareMonitor", "LibreHardwareMonitor.exe"),
@@ -134,10 +134,12 @@ def _patch_lhm_config() -> None:
       startMinMenuItem     = true   (starts minimised to tray)
     Creates the config from scratch if it doesn't exist yet.
     """
+
     import xml.etree.ElementTree as ET
 
     lhm_dir  = os.path.dirname(_lhm_exe_path())
     cfg_path = os.path.join(lhm_dir, "LibreHardwareMonitor.config")
+
 
     REQUIRED_KEYS = {
         "runWebServerMenuItem": "true",
@@ -204,6 +206,7 @@ def _show_lhm_started_popup() -> None:
     from PySide6.QtCore import Qt
     from PySide6.QtWidgets import QDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
 
+
     BG, PANEL, BORDER, ACCENT, ACCENT2, TEXT, SUBTEXT, qt_font = _lhm_theme_colours()
 
     popup = QDialog()
@@ -267,6 +270,7 @@ def _launch_lhm():
         if sys.platform == "win32":
             import ctypes
             shell32 = getattr(ctypes.windll, "shell32")
+
             ShellExecuteW = getattr(shell32, "ShellExecuteW")
             ret = ShellExecuteW(
                 None, "runas", exe, None, os.path.dirname(exe), 1
@@ -285,6 +289,7 @@ def _launch_lhm():
         print(f"[LHM] Launch failed: {e}")
 
 
+
 def _show_lhm_prompt(cfg: dict, save_cfg_cb) -> bool:
     """
     Show a popup asking whether to start LHM.
@@ -292,6 +297,7 @@ def _show_lhm_prompt(cfg: dict, save_cfg_cb) -> bool:
     Saves preference back to config if user picks always/never.
     """
     from PySide6.QtWidgets import QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel, QPushButton
+
 
     BG, PANEL, BORDER, ACCENT, ACCENT2, TEXT, SUBTEXT, qt_font = _lhm_theme_colours()
 
@@ -381,6 +387,7 @@ def _show_lhm_prompt(cfg: dict, save_cfg_cb) -> bool:
     return result["launch"]
 
 
+
 def _handle_lhm_startup(cfg: dict, save_cfg_cb):
     """Check lhm_prompt preference and act accordingly."""
     pref = cfg.get("lhm_prompt", "ask")
@@ -406,7 +413,7 @@ if __name__ == "__main__":
     theme.set_theme(cfg.get("theme_mode", "rich_purple"))
 
     # Qt needs exactly one QApplication instance, created before any window
-    # or dialog (including the LHM startup popups below) is constructed.
+    # or dialogue (including the LHM startup popups below) is constructed.
     from PySide6.QtWidgets import QApplication
     qt_app = QApplication(sys.argv)
     qt_app.setStyleSheet(theme.qss())

@@ -9,11 +9,14 @@ were all lost on every restart. This adds it.
 import json
 import os
 
+
 from core.launcher import DEFAULT_LAUNCH_EXE, default_profile, resync_uid_counter
 
 SCRIPT_DIR  = os.path.dirname(os.path.abspath(__file__))
 PARENT_DIR  = os.path.dirname(SCRIPT_DIR)
+
 CONFIG_DIR  = os.path.join(PARENT_DIR, "configs")
+
 CONFIG_FILE = os.path.join(CONFIG_DIR, "launcher_config.json")
 
 

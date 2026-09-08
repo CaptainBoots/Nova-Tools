@@ -100,6 +100,7 @@ def start_loop(
         daemon=True,
     )
 
+
     _loop_thread.start()
 
 
@@ -186,6 +187,7 @@ def _run(
 
     # Build one telemetry dictionary per GPU.
 
+
     state.gpus = []
 
     for index, name in enumerate(
@@ -270,6 +272,7 @@ def _run(
                 data = get_lhm_data()
 
                 if data:
+
                     with lhm_cache["lock"]:
                         lhm_cache["data"] = data
 
@@ -300,6 +303,7 @@ def _run(
                     if state.fake_data
                     else media_mod.fetch()
                 )
+
 
                 with media_cache["lock"]:
                     media_cache["info"] = (
@@ -395,6 +399,7 @@ def _run(
 
             # ── Hardware sensors ──────────────────────────────────────────────
 
+
             with lhm_cache["lock"]:
                 lhm_data = lhm_cache["data"]
 
@@ -459,7 +464,7 @@ def _run(
                     )
 
 
-                # Keep the old single-GPU fields synchronized with GPU 0.
+                # Keep the old single-GPU fields synchronised with GPU 0.
                 # Existing modules/code using those fields therefore continue
                 # to work.
 
@@ -559,7 +564,9 @@ def _run(
 
             # ── Media snapshot ────────────────────────────────────────────────
 
+
             with media_cache["lock"]:
+
                 media_info = dict(
                     media_cache["info"]
                 )

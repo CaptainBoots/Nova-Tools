@@ -11,7 +11,7 @@ import re
 import subprocess
 import sys
 
-from hardware.lhm import hw_nodes, is_cpu, numeric, get_lhm_data #ignore
+from hardware.lhm import hw_nodes, is_cpu, numeric, get_lhm_data
 
 
 
@@ -65,12 +65,15 @@ def _best_sensor(data, category_kw: str, primary_kw: tuple, secondary_kw: tuple)
                     except ValueError:
                         continue
                     if any(p in st for p in primary_kw):
+
                         best["p"] = val
                     elif any(s in st for s in secondary_kw) and best["s"] is None:
+
                         best["s"] = val
     except Exception:
         pass
     r = best["p"] if best["p"] is not None else best["s"]
+
     return int(r) if r is not None else 0
 
 

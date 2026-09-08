@@ -14,7 +14,9 @@ from __future__ import annotations
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QFrame
 
+
 from core.log_writer import RotatingDirLogWriter
+
 from ui.feed_widget import FeedList
 from ui import theme
 
@@ -33,7 +35,9 @@ class InstanceLogTab(theme.StripeBackground):
         self._load_history()
         self._set_status(self._engine.is_running)
 
+
         self._bridge.instance_event.connect(self._feed.add_event, Qt.QueuedConnection)
+
         self._bridge.engine_status.connect(self._set_status, Qt.QueuedConnection)
 
     def _build(self):

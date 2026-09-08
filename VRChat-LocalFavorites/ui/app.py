@@ -13,16 +13,22 @@ from __future__ import annotations
 from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTabWidget, QApplication
 
+
 from config import load_config, save_config, get_defaults, SESSION_BLOB_FILE
+
 from core.vrchat_api import VRChatAPI, VRChatAPIError
 from core.secure_store import SecureStore, WrongPassword, CorruptBlob
+
 from core.favorites_store import FavoritesStore
+
 from ui.favorites_tab import FavoritesCategoryTab
-from ui.help_dialog import open_help
-from ui.settings_dialog import open_settings
-from ui.login_dialog import open_login
-from ui.master_password_dialog import open_master_password_prompt
-from ui.import_dialog import open_import_dialog
+from ui.help_dialogue import open_help
+from ui.settings_dialogue import open_settings
+
+from ui.login_dialogue import open_login
+from ui.master_password_dialogue import open_master_password_prompt
+
+from ui.import_dialogue import open_import_dialogue
 from ui import theme
 
 try:
@@ -39,6 +45,7 @@ class App(QMainWindow):
         theme.set_theme(self._cfg.get("theme_mode", "rich_purple"))
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
 
         # Backend state that must survive a theme rebuild.
@@ -134,6 +141,7 @@ class App(QMainWindow):
 
     def _reload_all_tabs(self):
         for tab in self._tabs.values():
+
             tab._reload_tree()
 
     # ── Account / login ───────────────────────────────────────────────
@@ -242,7 +250,7 @@ class App(QMainWindow):
         self._trigger_import()
 
     def _trigger_import(self):
-        open_import_dialog(self, self._api, self._favorites_store, on_done=self._reload_all_tabs)
+        open_import_dialogue(self, self._api, self._favorites_store, on_done=self._reload_all_tabs)
 
     # ── Config ────────────────────────────────────────────────────────
 
@@ -257,9 +265,10 @@ class App(QMainWindow):
         self._cfg.update(keep)
         self._save()
 
-    # ── Dialogs ───────────────────────────────────────────────────────
+    # ── Dialogues ───────────────────────────────────────────────────────
 
     def _open_settings(self):
+
         open_settings(
             parent=self,
             cfg=self._cfg,
@@ -283,6 +292,7 @@ class App(QMainWindow):
         theme.set_theme(mode)
         app_instance = QApplication.instance()
         if app_instance is not None:
+
             app_instance.setStyleSheet(theme.qss())
         self._rebuild_ui()
 

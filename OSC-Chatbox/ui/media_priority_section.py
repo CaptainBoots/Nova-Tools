@@ -4,11 +4,11 @@ ui/media_priority_section.py
 The "Player Priority" list inside Settings -> Media — a drag-reorderable
 QListWidget seeded from core/media_registry.py, showing which media
 source wins when more than one is playing at once. Split out of
-settings_dialog.py to keep that file from ballooning, same reasoning as
+settings_dialogue.py to keep that file from ballooning, same reasoning as
 ui/dev_menu.py being its own module.
 
 Reordering takes effect immediately (monitors.media.set_priority_order()
-is called on every drop, not just on dialog close) and is persisted to
+is called on every drop, not just on dialogue close) and is persisted to
 cfg["media_priority_order"] as a flat list of registry keys — so a
 saved order surviving a future update that adds new registry entries
 just appends the new ones at the end rather than losing them (see
@@ -36,7 +36,9 @@ def build_priority_list(parent_layout: QVBoxLayout, cfg: dict, save_cb):
     parent_layout.addWidget(hint)
 
     list_widget = QListWidget()
+
     list_widget.setDragDropMode(QAbstractItemView.InternalMove)
+
     list_widget.setSelectionMode(QAbstractItemView.SingleSelection)
     list_widget.setFixedHeight(220)
     list_widget.setStyleSheet(f"""
@@ -64,19 +66,19 @@ def build_priority_list(parent_layout: QVBoxLayout, cfg: dict, save_cb):
     label_map = media_registry.labels()
     for key in ordered_keys:
         item = QListWidgetItem(label_map.get(key, key))
-        item.setData(Qt.UserRole, key)
+        item.setData(Qt.ItemDataRole.UserRole, key)
         list_widget.addItem(item)
 
     def _persist_current_order():
         order = [
-            list_widget.item(i).data(Qt.UserRole)
+            list_widget.item(i).data(Qt.ItemDataRole.UserRole)
             for i in range(list_widget.count())
         ]
         cfg["media_priority_order"] = order
         media_mod.set_priority_order(order)  # live — no restart needed
         save_cb()
 
-    # rowsMoved fires on a completed drag-drop reorder; this is the one
+    # rowsMoved fires on a completed drag-and-drop reorder; this is the one
     # signal that reliably reflects the widget's post-drop item order
     # (unlike currentRowChanged etc, which fire for selection, not order).
     list_widget.model().rowsMoved.connect(lambda *_: _persist_current_order())

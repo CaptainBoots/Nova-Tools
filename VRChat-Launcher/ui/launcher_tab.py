@@ -15,6 +15,7 @@ from PySide6.QtWidgets import (
     QPushButton, QScrollArea, QFileDialog, QMessageBox, QDialog,
 )
 
+
 from core.launcher import LIMIT_NOTE, default_profile
 from ui import theme
 from ui.theme import StripeBackground
@@ -104,6 +105,7 @@ class LauncherTab(StripeBackground):
         why_btn = QPushButton("Why? / Workarounds")
         why_btn.setStyleSheet(theme.subtle_button_qss())
         why_btn.setFont(theme.qt_font(9))
+
         why_btn.setCursor(Qt.PointingHandCursor)
         why_btn.clicked.connect(self._show_limit)
         warn_layout.addWidget(why_btn)
@@ -116,6 +118,7 @@ class LauncherTab(StripeBackground):
 
         self._profiles_scroll = QScrollArea()
         self._profiles_scroll.setWidgetResizable(True)
+
         self._profiles_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self._profiles_scroll.setStyleSheet("background: transparent; border: none;")
 
@@ -147,6 +150,7 @@ class LauncherTab(StripeBackground):
         add_btn = QPushButton("+ Add Profile")
         add_btn.setStyleSheet(theme.accent_button_qss())
         add_btn.setFont(theme.qt_font(9, bold=True))
+
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.clicked.connect(self._add_profile)
         add_row.addWidget(add_btn)
@@ -175,6 +179,7 @@ class LauncherTab(StripeBackground):
         browse_btn = QPushButton("Browse")
         browse_btn.setStyleSheet(theme.subtle_button_qss())
         browse_btn.setFont(theme.qt_font(9))
+
         browse_btn.setCursor(Qt.PointingHandCursor)
         browse_btn.clicked.connect(self._browse)
         exe_row.addWidget(browse_btn)
@@ -205,6 +210,7 @@ class LauncherTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         footer_layout.addWidget(help_btn)
@@ -212,6 +218,7 @@ class LauncherTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         footer_layout.addWidget(settings_btn)
@@ -229,7 +236,7 @@ class LauncherTab(StripeBackground):
 
     def _build_row(self, profile: dict) -> QFrame:
         uid = profile["uid"]
-        color = profile.get("color") or theme.ACCENT
+        colour = profile.get("colour") or theme.ACCENT
 
         outer = QFrame()
         outer.setStyleSheet(f"background-color: {theme.PANEL}; border: 1px solid {theme.BORDER};")
@@ -244,14 +251,15 @@ class LauncherTab(StripeBackground):
         row.addWidget(dot)
 
         icon = QLabel("◈")
-        icon.setStyleSheet(f"color: {color}; background: transparent; border: none;")
+        icon.setStyleSheet(f"color: {colour}; background: transparent; border: none;")
         icon.setFont(theme.qt_font(10, bold=True))
         row.addWidget(icon)
 
         name_lbl = QLabel(profile["name"])
-        name_lbl.setStyleSheet(f"color: {color}; background: transparent; border: none;")
+        name_lbl.setStyleSheet(f"color: {colour}; background: transparent; border: none;")
         name_lbl.setFont(theme.qt_font(10, bold=True))
         name_lbl.setFixedWidth(76)
+
         name_lbl.setCursor(Qt.PointingHandCursor)
         name_lbl.mousePressEvent = lambda _evt, u=uid: self._show_config_panel(u)
         row.addWidget(name_lbl)
@@ -271,6 +279,7 @@ class LauncherTab(StripeBackground):
         launch_btn = QPushButton("Launch")
         launch_btn.setStyleSheet(_launch_button_qss())
         launch_btn.setFont(theme.qt_font(9, bold=True))
+
         launch_btn.setCursor(Qt.PointingHandCursor)
         launch_btn.setFixedWidth(70)
         launch_btn.clicked.connect(lambda _checked=False, u=uid: self._launch(u))
@@ -279,6 +288,7 @@ class LauncherTab(StripeBackground):
         kill_btn = QPushButton("Kill")
         kill_btn.setStyleSheet(_row_button_qss(theme.RED, theme.BORDER))
         kill_btn.setFont(theme.qt_font(9, bold=True))
+
         kill_btn.setCursor(Qt.PointingHandCursor)
         kill_btn.setFixedWidth(54)
         kill_btn.setEnabled(False)
@@ -290,6 +300,7 @@ class LauncherTab(StripeBackground):
         remove_btn = QPushButton("Remove")
         remove_btn.setStyleSheet(_row_button_qss(theme.SUBTEXT, theme.BORDER))
         remove_btn.setFont(theme.qt_font(9))
+
         remove_btn.setCursor(Qt.PointingHandCursor)
         remove_btn.setFixedWidth(64)
         remove_btn.clicked.connect(lambda _checked=False, u=uid: self._remove(u))
@@ -323,7 +334,7 @@ class LauncherTab(StripeBackground):
         header_layout.setContentsMargins(10, 0, 6, 0)
 
         title_lbl = QLabel(f"⚙ Profile: {profile['name']}")
-        title_lbl.setStyleSheet(f"color: {profile['color']}; background: transparent; border: none;")
+        title_lbl.setStyleSheet(f"color: {profile['colour']}; background: transparent; border: none;")
         title_lbl.setFont(theme.qt_font(10, bold=True))
         header_layout.addWidget(title_lbl)
         header_layout.addStretch(1)
@@ -331,6 +342,7 @@ class LauncherTab(StripeBackground):
         close_btn = QPushButton("✕")
         close_btn.setStyleSheet(_row_button_qss(theme.SUBTEXT, theme.PANEL))
         close_btn.setFont(theme.qt_font(9))
+
         close_btn.setCursor(Qt.PointingHandCursor)
         close_btn.clicked.connect(self._hide_config_panel)
         header_layout.addWidget(close_btn)
@@ -357,7 +369,7 @@ class LauncherTab(StripeBackground):
             return entry
 
         name_entry = field("Profile Name:", profile["name"])
-        color_entry = field("UI Theme Color Hex:", profile["color"])
+        color_entry = field("UI Theme Colour Hex:", profile["colour"])
         osc_entry = field("OSC Destination Port (VRC Input):", profile["osc_port"])
         listen_entry = field("OSC Source Bind Port (VRC Output):", profile["listen_port"])
         args_entry = field("Custom Launch Args (Optional):", profile["exe_args"])
@@ -369,10 +381,15 @@ class LauncherTab(StripeBackground):
             except ValueError:
                 QMessageBox.critical(self, "Error", "OSC ports must be numbers!")
                 return
+
             profile["name"] = name_entry.text().strip() or profile["name"]
-            profile["color"] = color_entry.text().strip() or profile["color"]
+
+            profile["colour"] = color_entry.text().strip() or profile["colour"]
+
             profile["osc_port"] = new_osc_port
+
             profile["listen_port"] = new_listen_port
+
             profile["exe_args"] = args_entry.text().strip()
             self._save_cb()
             self._rebuild_rows()
@@ -381,6 +398,7 @@ class LauncherTab(StripeBackground):
         save_btn = QPushButton("Save Changes")
         save_btn.setStyleSheet(theme.accent_button_qss())
         save_btn.setFont(theme.qt_font(9, bold=True))
+
         save_btn.setCursor(Qt.PointingHandCursor)
         save_btn.clicked.connect(do_save)
         form_layout.addSpacing(8)
@@ -425,7 +443,7 @@ class LauncherTab(StripeBackground):
             return
         if QMessageBox.question(
             self, "Remove?", f"Remove '{profile['name']}'?"
-        ) != QMessageBox.Yes:
+        ) != QMessageBox.StandardButton.Yes:
             return
         self._process_mgr.drop(uid)
         self._profiles.remove(profile)
@@ -474,6 +492,7 @@ class LauncherTab(StripeBackground):
         close_btn = QPushButton("Close")
         close_btn.setStyleSheet(theme.subtle_button_qss())
         close_btn.setFont(theme.qt_font(9, bold=True))
+
         close_btn.setCursor(Qt.PointingHandCursor)
         close_btn.clicked.connect(dlg.close)
         layout.addWidget(close_btn)

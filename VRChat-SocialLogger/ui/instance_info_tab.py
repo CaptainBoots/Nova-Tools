@@ -20,6 +20,7 @@ from PySide6.QtWidgets import (
     QScrollArea, QGridLayout,
 )
 
+
 from core.vrchat_api import VRChatAPIError, describe_instance_type
 from ui import theme
 
@@ -64,7 +65,7 @@ class InstanceInfoTab(theme.StripeBackground):
         # Bound methods of self (a real QWidget/QObject on the main
         # thread), not lambdas — a lambda receiver doesn't reliably
         # queue across threads even with the background engine emitting
-        # via a genuine QObject bridge; see ui/login_dialog.py's
+        # via a genuine QObject bridge; see ui/login_dialogue.py's
         # _ResultRelay docstring for the full explanation.
         self._bridge.instance_event.connect(self._on_instance_event)
         self._bridge.friend_event.connect(self._on_friend_event)
@@ -199,7 +200,9 @@ class InstanceInfoTab(theme.StripeBackground):
         # QObject methods (auto-detection normally handles that fine),
         # being explicit here matches the rest of the app after the
         # lambda-connection bug found elsewhere, and costs nothing.
+
         self._pop_worker.succeeded.connect(self._on_population, Qt.QueuedConnection)
+
         self._pop_worker.failed.connect(self._on_population_failed, Qt.QueuedConnection)
         self._pop_thread.finished.connect(self._pop_worker.deleteLater)
         self._pop_thread.finished.connect(self._pop_thread.deleteLater)
@@ -227,6 +230,7 @@ class InstanceInfoTab(theme.StripeBackground):
     def _clear_friends_list(self):
         while self._friends_layout.count():
             item = self._friends_layout.takeAt(0)
+
             w = item.widget()
             if w is not None:
                 w.deleteLater()

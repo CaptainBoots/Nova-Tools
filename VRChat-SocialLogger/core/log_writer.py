@@ -53,7 +53,7 @@ class RotatingDirLogWriter:
         return total
 
     def _enforce_cap(self, incoming_bytes: int):
-        """Delete oldest files (by mtime) until there's room for
+        """Delete the oldest files (by mtime) until there's room for
         incoming_bytes, or nothing is left to delete."""
         if self.max_bytes <= 0:
             return  # 0/negative means "no cap" — never delete

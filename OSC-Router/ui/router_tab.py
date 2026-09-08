@@ -73,6 +73,7 @@ class RouterTab(StripeBackground):
         ):
             b = QPushButton(text)
             b.setFont(theme.qt_font(10, bold=True))
+
             b.setCursor(Qt.PointingHandCursor)
             b.setMinimumWidth(110)
             b.setStyleSheet(
@@ -87,6 +88,7 @@ class RouterTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         bf.addWidget(help_btn)
@@ -94,6 +96,7 @@ class RouterTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         bf.addWidget(settings_btn)
@@ -169,6 +172,7 @@ class RouterTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.BORDER}; color: {theme.TEXT}; }}"
         )
         add_btn.setFont(theme.qt_font(9))
+
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.clicked.connect(self._add_source)
         toolbar_layout.addWidget(add_btn)
@@ -206,6 +210,7 @@ class RouterTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.BORDER}; color: {theme.TEXT}; }}"
         )
         add_btn.setFont(theme.qt_font(9))
+
         add_btn.setCursor(Qt.PointingHandCursor)
         add_btn.clicked.connect(self._add_output)
         toolbar_layout.addWidget(add_btn)
@@ -228,6 +233,7 @@ class RouterTab(StripeBackground):
         grid.setContentsMargins(8, 6, 8, 6)
 
         idx_lbl = QLabel(f"#{idx + 1}")
+
         idx_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         idx_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         idx_lbl.setFont(theme.qt_font(8))
@@ -256,6 +262,7 @@ class RouterTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.BORDER}; }}"
         )
         rm_btn.setFont(theme.qt_font(9))
+
         rm_btn.setCursor(Qt.PointingHandCursor)
         rm_btn.clicked.connect(lambda _checked=False, i=idx: self._remove_source(i))
         grid.addWidget(rm_btn, 0, 5)
@@ -322,6 +329,7 @@ class RouterTab(StripeBackground):
         hdr_grid.setContentsMargins(8, 8, 8, 4)
 
         idx_lbl = QLabel(f"#{idx + 1}")
+
         idx_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         idx_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         idx_lbl.setFont(theme.qt_font(8))
@@ -359,6 +367,7 @@ class RouterTab(StripeBackground):
             f"QPushButton:hover {{ background-color: {theme.BORDER}; }}"
         )
         rm_btn.setFont(theme.qt_font(9))
+
         rm_btn.setCursor(Qt.PointingHandCursor)
         rm_btn.clicked.connect(lambda _checked=False, i=idx: self._remove_output(i))
         hdr_grid.addWidget(rm_btn, 0, 7)
@@ -386,6 +395,7 @@ class RouterTab(StripeBackground):
                 f"QCheckBox::indicator:checked {{ background: {theme.ACCENT2}; border: 1px solid {theme.ACCENT2}; }}"
             )
             cb.setFont(theme.qt_font(9))
+
             cb.setCursor(Qt.PointingHandCursor)
             cb.setChecked(src_name in subscribed)
             cb.toggled.connect(self._on_output_change)
@@ -479,7 +489,9 @@ class RouterTab(StripeBackground):
                 name = r["name_entry"].text().strip()
                 src = src_by_name.get(name)
                 if src:
+
                     if src.running:
+
                         r["stats_label"].setText(f"● {src.rx_count:,} rx")
                         r["stats_label"].setStyleSheet(f"color: {theme.GREEN}; background: transparent; border: none;")
                     else:
@@ -494,10 +506,12 @@ class RouterTab(StripeBackground):
                 name = r["name_entry"].text().strip()
                 out = out_by_name.get(name)
                 if out:
+
                     if out.failed:
                         r["stats_label"].setText("✗ failed")
                         r["stats_label"].setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
                     else:
+
                         r["stats_label"].setText(f"▶ {out.fwd_total:,} sent")
                         r["stats_label"].setStyleSheet(f"color: {theme.GREEN}; background: transparent; border: none;")
                 else:
@@ -527,6 +541,7 @@ class RouterTab(StripeBackground):
 
     # ── Helpers ───────────────────────────────────────────────────────────────
 
+
     def _entry(self, value: str = "", width: int = None) -> QLineEdit:
         e = QLineEdit(value)
         e.setFont(theme.qt_font(9))
@@ -534,6 +549,7 @@ class RouterTab(StripeBackground):
         if width:
             e.setFixedWidth(width)
         return e
+
 
     def _scrollable(self):
         scroll = QScrollArea()

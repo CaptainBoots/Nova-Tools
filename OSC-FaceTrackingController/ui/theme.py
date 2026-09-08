@@ -16,6 +16,23 @@ from PySide6.QtWidgets import QWidget, QLabel
 
 colour_mode = "new"
 
+# ─── Statically declared theme variables to satisfy code analysis / IDE inspectors ───
+BG = ""
+PANEL = ""
+BORDER = ""
+ACCENT = ""
+ACCENT2 = ""
+TAB = ""
+TEXT = ""
+TEXT2 = ""
+SUBTEXT = ""
+GREEN = ""
+RED = ""
+YELLOW = ""
+CYAN = ""
+ORANGE = ""
+STRIPE_COLOURS = []
+
 FONT = "Consolas"
 TITLE_PREFIX = "◈"
 
@@ -608,6 +625,7 @@ def subtle_button_qss() -> str:
     )
 
 
+
 def section_caption_qss(bg: str = None) -> str:
     """Small background 'chip' behind section-header captions (e.g.
     'Live Chatbox Preview', 'Configuration', 'Features'). Without this
@@ -617,7 +635,7 @@ def section_caption_qss(bg: str = None) -> str:
 
     Defaults to PANEL (for captions sitting directly on the stripe/BG
     layer, e.g. in the chatbox tab). Pass bg=BORDER for captions that
-    already sit on a PANEL-coloured parent (settings dialog, dev menu),
+    already sit on a PANEL-coloured parent (settings dialogue, dev menu),
     so the chip doesn't disappear into its own background."""
     bg = bg or PANEL
     return (
@@ -810,11 +828,14 @@ class TextChip(QLabel):
 
     def paintEvent(self, event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, True)
         c = QColor(self._chip_bg)
         c.setAlpha(round(self._bg_alpha * 255))
+
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setBrush(c)
+
         painter.setPen(Qt.NoPen)
         painter.drawRoundedRect(self.rect(), self._radius, self._radius)
         painter.end()
@@ -843,6 +864,7 @@ class StripeBackground(QWidget):
 
     def paintEvent(self, _event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, False)
         w, h = self.width(), self.height()
         a = round(self._bg_alpha * 255)
@@ -851,12 +873,14 @@ class StripeBackground(QWidget):
         if not colours:
             c = QColor(BG)
             c.setAlpha(a)
+
             painter.setCompositionMode(QPainter.CompositionMode_Source)
             painter.fillRect(self.rect(), c)
             return
 
         bg = QColor(BG)
         bg.setAlpha(a)
+
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.fillRect(self.rect(), bg)
         # Keep Source mode (not SourceOver) for the stripes too — SourceOver
@@ -883,6 +907,7 @@ class StripeBackground(QWidget):
                 sc = QColor(colour)
                 sc.setAlpha(a)
                 painter.setBrush(sc)
+
                 painter.setPen(Qt.NoPen)
                 painter.drawPolygon(poly)
             start += cycle

@@ -11,8 +11,10 @@ from PySide6.QtWidgets import (
     QPushButton, QRadioButton, QButtonGroup,
 )
 
+
 from core.pad_state import PadState
 from ui import theme
+
 from ui.widgets import NESPad, JoystickPad
 
 
@@ -57,6 +59,7 @@ class PadCard(QFrame):
         hdr.addStretch(1)
 
         rm_btn = QLabel("✕")
+
         rm_btn.setCursor(Qt.PointingHandCursor)
         rm_btn.setStyleSheet(f"color: {theme.RED}; background: transparent; border: none;")
         rm_btn.setFont(theme.qt_font(10))
@@ -100,8 +103,10 @@ class PadCard(QFrame):
             rb = QRadioButton(txt)
             rb.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
             rb.setFont(theme.qt_font(8))
+
             rb.setCursor(Qt.PointingHandCursor)
             rb.setChecked(val == self._default_style)
+
             rb.toggled.connect(lambda checked, v=val: self._rebuild_pad() if checked else None)
             self._style_group.addButton(rb)
             self._style_buttons[val] = rb
@@ -110,6 +115,7 @@ class PadCard(QFrame):
         cfg_row.addSpacing(8)
 
         self._conn_btn = QPushButton("Connect")
+
         self._conn_btn.setCursor(Qt.PointingHandCursor)
         self._conn_btn.setFont(theme.qt_font(8, bold=True))
         self._set_connect_style(connected=False)
@@ -149,6 +155,7 @@ class PadCard(QFrame):
     def _clear_pad_area(self):
         while self._pad_area.count():
             item = self._pad_area.takeAt(0)
+
             w = item.widget()
             if w is not None:
                 w.setParent(None)
@@ -158,6 +165,7 @@ class PadCard(QFrame):
     def _show_placeholder(self):
         self._clear_pad_area()
         placeholder = QLabel("Press Connect to activate")
+
         placeholder.setAlignment(Qt.AlignCenter)
         placeholder.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         placeholder.setFont(theme.qt_font(8))
@@ -167,7 +175,10 @@ class PadCard(QFrame):
     # ── Connection ────────────────────────────────────────────────────────────
 
     def _toggle_connect(self):
-        self._disconnect() if self._connected else self._connect()
+        if self._connected:
+            self._disconnect()
+        else:
+            self._connect()
 
     def _connect(self):
         host = self._host.text().strip()
@@ -178,6 +189,7 @@ class PadCard(QFrame):
             return
 
         if self.state:
+
             self.state.stop()
 
         self.state = PadState(host, port)
@@ -188,6 +200,7 @@ class PadCard(QFrame):
 
     def _disconnect(self):
         if self.state:
+
             self.state.stop()
             self.state = None
         self._connected = False
@@ -203,7 +216,7 @@ class PadCard(QFrame):
         cls = NESPad if style == "nes" else JoystickPad
         self._pad_widget = cls(self.state)
         self._pad_area.addWidget(self._pad_widget)
-        # Adding a widget to an already-materialized layout queues a
+        # Adding a widget to an already-materialised layout queues a
         # layout/show pass for the next event loop iteration — pump it now
         # so the pad controls appear immediately rather than needing an
         # extra redraw before becoming visible.
@@ -225,4 +238,5 @@ class PadCard(QFrame):
 
     def destroy_state(self):
         if self.state:
+
             self.state.stop()

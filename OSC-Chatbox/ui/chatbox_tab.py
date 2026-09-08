@@ -47,6 +47,7 @@ class _IconButton(QPushButton):
     def __init__(self, icon_path: str, bg: str, hover_bg: str, url: str, size=ICON_SIZE):
         super().__init__()
         self.setFixedSize(size + 12, size + 12)
+
         self.setCursor(Qt.PointingHandCursor)
         if os.path.isfile(icon_path):
             self.setIcon(QIcon(QPixmap(icon_path)))
@@ -78,10 +79,12 @@ class _BannerRotator(QWidget):
         self._index = 0
 
         self._current = QLabel(self)
+
         self._current.setAlignment(Qt.AlignCenter)
         self._current.setGeometry(0, 0, BANNER_WIDTH, BANNER_HEIGHT)
 
         self._incoming = QLabel(self)
+
         self._incoming.setAlignment(Qt.AlignCenter)
         self._incoming.setGeometry(BANNER_WIDTH, 0, BANNER_WIDTH, BANNER_HEIGHT)
         self._incoming.hide()
@@ -96,10 +99,12 @@ class _BannerRotator(QWidget):
             self._timer.timeout.connect(self._advance)
             self._timer.start(BANNER_HOLD_MS)
 
+
     def _show_pixmap(self, label: QLabel, path: str):
         pix = QPixmap(path)
         if pix.isNull():
             return
+
         scaled = pix.scaled(BANNER_WIDTH, BANNER_HEIGHT, Qt.KeepAspectRatio, Qt.SmoothTransformation)
         label.setPixmap(scaled)
 
@@ -115,12 +120,14 @@ class _BannerRotator(QWidget):
         anim_cur.setDuration(BANNER_SLIDE_MS)
         anim_cur.setStartValue(QRect(0, 0, BANNER_WIDTH, BANNER_HEIGHT))
         anim_cur.setEndValue(QRect(-BANNER_WIDTH, 0, BANNER_WIDTH, BANNER_HEIGHT))
+
         anim_cur.setEasingCurve(QEasingCurve.InOutCubic)
 
         anim_in = QPropertyAnimation(self._incoming, b"geometry", self)
         anim_in.setDuration(BANNER_SLIDE_MS)
         anim_in.setStartValue(QRect(BANNER_WIDTH, 0, BANNER_WIDTH, BANNER_HEIGHT))
         anim_in.setEndValue(QRect(0, 0, BANNER_WIDTH, BANNER_HEIGHT))
+
         anim_in.setEasingCurve(QEasingCurve.InOutCubic)
 
         def _finish():
@@ -196,6 +203,7 @@ class ChatboxTab(StripeBackground):
             b = QPushButton(text)
             b.setFont(theme.qt_font(10, bold=True))
             b.setMinimumWidth(110)
+
             b.setCursor(Qt.PointingHandCursor)
             b.clicked.connect(cmd)
             btn_row.addWidget(b)
@@ -205,6 +213,7 @@ class ChatboxTab(StripeBackground):
         help_btn = QPushButton("? Help")
         help_btn.setStyleSheet(theme.subtle_button_qss())
         help_btn.setFont(theme.qt_font(9))
+
         help_btn.setCursor(Qt.PointingHandCursor)
         help_btn.clicked.connect(self._help_cb)
         btn_row.addWidget(help_btn)
@@ -212,6 +221,7 @@ class ChatboxTab(StripeBackground):
         settings_btn = QPushButton("⚙ Settings")
         settings_btn.setStyleSheet(theme.subtle_button_qss())
         settings_btn.setFont(theme.qt_font(9))
+
         settings_btn.setCursor(Qt.PointingHandCursor)
         settings_btn.clicked.connect(self._settings_cb)
         btn_row.addWidget(settings_btn)
@@ -222,6 +232,7 @@ class ChatboxTab(StripeBackground):
         # ── Live preview ──────────────────────────────────────────────────────
         preview_caption = TextChip("Live Chatbox Preview")
         preview_caption.setFont(theme.qt_font(9, bold=True))
+
         outer.addWidget(preview_caption, alignment=Qt.AlignLeft)
         self._chips.append(preview_caption)
 
@@ -242,6 +253,7 @@ class ChatboxTab(StripeBackground):
         # CSS "border" property — setting border:none in the stylesheet
         # doesn't fully suppress it, which left a mis-sized inner border box
         # alongside the intended outer one on preview_frame. NoFrame kills it.
+
         self._preview.setFrameShape(QFrame.NoFrame)
         self._preview.setStyleSheet(
             f"background-color: {theme.PANEL}; color: {theme.TEXT}; border: none; padding: 8px;"
@@ -249,6 +261,7 @@ class ChatboxTab(StripeBackground):
         preview_layout.addWidget(self._preview)
 
         self._page_lbl = QLabel("")
+
         self._page_lbl.setAlignment(Qt.AlignRight)
         self._page_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; padding: 0 8px 4px 0; border: none;")
         self._page_lbl.setFont(theme.qt_font(8))
@@ -261,6 +274,7 @@ class ChatboxTab(StripeBackground):
         # ── Config fields ─────────────────────────────────────────────────────
         cfg_caption = TextChip("Configuration")
         cfg_caption.setFont(theme.qt_font(9, bold=True))
+
         outer.addWidget(cfg_caption, alignment=Qt.AlignLeft)
         self._chips.append(cfg_caption)
 
@@ -280,6 +294,7 @@ class ChatboxTab(StripeBackground):
 
         for label, key, r, cl, ce in fields:
             lbl = TextChip(label, fg=theme.SUBTEXT, padding="2px 6px")
+
             lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
             lbl.setFont(theme.qt_font(9))
             cfg_grid.addWidget(lbl, r, cl)
@@ -302,6 +317,7 @@ class ChatboxTab(StripeBackground):
         # ── Forced text ───────────────────────────────────────────────────────
         forced_caption = TextChip("Forced Text (overrides all pages)")
         forced_caption.setFont(theme.qt_font(9, bold=True))
+
         outer.addWidget(forced_caption, alignment=Qt.AlignLeft)
         self._chips.append(forced_caption)
 
@@ -313,6 +329,7 @@ class ChatboxTab(StripeBackground):
         hint.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; border: none;")
         hint.setFont(theme.qt_font(8))
         outer.addWidget(hint)
+
 
         def _forced_changed(text):
             self._state.forced_text = text

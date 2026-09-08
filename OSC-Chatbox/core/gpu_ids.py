@@ -1,7 +1,7 @@
 """
 gpu_ids.py
 ──────────
-PCI vendor:device ID → human readable GPU name.
+PCI vendor:device ID → human-readable GPU name.
 
 Imported by hardware/gpu.py only. Edit this file to add new GPUs
 without touching any other module.

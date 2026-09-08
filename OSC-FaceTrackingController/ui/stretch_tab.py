@@ -16,6 +16,7 @@ from PySide6.QtCore import Qt, QPointF, QRectF
 from PySide6.QtGui import QPainter, QColor, QPen, QPainterPath
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
 
+
 from core.face_params import FACE_PARAMS
 from ui import theme
 from ui.theme import StripeBackground
@@ -158,6 +159,7 @@ class _StretchCanvas(QWidget):
         super().__init__()
         self._on_change = on_change
         self.setFixedSize(CANVAS_SIZE, CANVAS_SIZE)
+
         self.setCursor(Qt.OpenHandCursor)
 
         self._values = {name: default for name, (_, _, default) in _PARAM_INFO.items()}
@@ -180,12 +182,14 @@ class _StretchCanvas(QWidget):
 
     def _set_value(self, param, value):
         lo, hi, _ = _PARAM_INFO.get(param, (0.0, 1.0, 0.0))
+
         value = round(_clamp(value, lo, hi), 3)
         if self._values.get(param) != value:
             self._values[param] = value
             self._on_change(param, value)
 
     def mousePressEvent(self, event):
+
         if event.button() != Qt.LeftButton:
             return
         pos = event.position()
@@ -198,6 +202,7 @@ class _StretchCanvas(QWidget):
         if nearest_id is not None:
             self._drag_handle_id = nearest_id
             self._drag_start_mouse = pos
+
             self.setCursor(Qt.ClosedHandCursor)
 
     def mouseMoveEvent(self, event):
@@ -212,6 +217,7 @@ class _StretchCanvas(QWidget):
 
     def mouseReleaseEvent(self, event):
         self._drag_handle_id = None
+
         self.setCursor(Qt.OpenHandCursor)
 
     def reset(self):
@@ -223,6 +229,7 @@ class _StretchCanvas(QWidget):
 
     def paintEvent(self, _event):
         painter = QPainter(self)
+
         painter.setRenderHint(QPainter.Antialiasing, True)
         c = CANVAS_SIZE / 2
         v = self._values
@@ -233,10 +240,13 @@ class _StretchCanvas(QWidget):
 
         for handle_id in ("cheek_l", "cheek_r"):
             handle = self._handles[handle_id]
+
             puff = v.get(handle.puff_param, 0.0)
+
             suck = v.get(handle.suck_param, 0.0)
             radius = 34 + puff * 22 - suck * 14
             hp = handle.get_pos(v)
+
             painter.setPen(Qt.NoPen)
             cheek_colour = QColor(theme.ACCENT2)
             cheek_colour.setAlpha(70)
@@ -246,6 +256,7 @@ class _StretchCanvas(QWidget):
         for handle_id in ("brow_l", "brow_r"):
             hp = self._handles[handle_id].get_pos(v)
             brow_pen = QPen(QColor(theme.TEXT), 6)
+
             brow_pen.setCapStyle(Qt.RoundCap)
             painter.setPen(brow_pen)
             tilt = 4 if handle_id == "brow_l" else -4
@@ -254,10 +265,13 @@ class _StretchCanvas(QWidget):
         for handle_id in ("eye_l", "eye_r"):
             handle = self._handles[handle_id]
             base = handle.base
+
             wide = v.get(handle.wide_param, 0.0)
+
             lid = v.get(handle.lid_param, 1.0)
             eye_h = max(2.0, 26 * lid + 14 * wide)
             eye_w = 30
+
             gaze_x = v.get(handle.x_param, 0.0) * 8
 
             painter.setPen(QPen(QColor(theme.ACCENT2), 2))
@@ -265,6 +279,7 @@ class _StretchCanvas(QWidget):
             painter.drawEllipse(QRectF(base.x() - eye_w / 2, base.y() - eye_h / 2, eye_w, eye_h))
 
             if eye_h > 6:
+
                 painter.setPen(Qt.NoPen)
                 painter.setBrush(QColor(theme.ACCENT))
                 pupil_r = min(6.0, eye_h / 2 - 1)
@@ -273,7 +288,9 @@ class _StretchCanvas(QWidget):
         mouth_l = self._handles["mouth_l"].get_pos(v)
         mouth_r = self._handles["mouth_r"].get_pos(v)
         jaw_handle = self._handles["jaw"]
+
         jaw_open = v.get(jaw_handle.open_param, 0.0)
+
         jaw_x = v.get(jaw_handle.x_param, 0.0)
 
         mid_bottom = QPointF(
@@ -286,17 +303,23 @@ class _StretchCanvas(QWidget):
         path.quadTo(QPointF((mouth_l.x() + mid_bottom.x()) / 2, mid_bottom.y()), mid_bottom)
         path.quadTo(QPointF((mid_bottom.x() + mouth_r.x()) / 2, mid_bottom.y()), mouth_r)
         mouth_pen = QPen(QColor(theme.TEXT), 4)
+
         mouth_pen.setCapStyle(Qt.RoundCap)
+
         mouth_pen.setJoinStyle(Qt.RoundJoin)
         painter.setPen(mouth_pen)
+
         painter.setBrush(Qt.NoBrush)
         painter.drawPath(path)
 
         if jaw_open > 0.08:
             tongue_handle = self._handles["tongue"]
+
             tongue_out = v.get(tongue_handle.open_param, 0.0)
+
             tongue_x = v.get(tongue_handle.x_param, 0.0)
             tongue_h = 10 + tongue_out * 34
+
             painter.setPen(Qt.NoPen)
             painter.setBrush(QColor(theme.RED))
             painter.drawRoundedRect(QRectF(
@@ -309,6 +332,7 @@ class _StretchCanvas(QWidget):
             is_active = handle_id == self._drag_handle_id
             col = QColor(theme.ACCENT if is_active else theme.BORDER)
             col.setAlpha(230 if is_active else 150)
+
             painter.setPen(Qt.NoPen)
             painter.setBrush(col)
             r = 7 if is_active else 5
@@ -361,6 +385,7 @@ class StretchTab(StripeBackground):
         reset_btn = QPushButton("↺  Reset Pose")
         reset_btn.setStyleSheet(theme.accent_button_qss())
         reset_btn.setFont(theme.qt_font(10, bold=True))
+
         reset_btn.setCursor(Qt.PointingHandCursor)
         reset_btn.clicked.connect(self._canvas.reset)
         btn_row.addWidget(reset_btn)

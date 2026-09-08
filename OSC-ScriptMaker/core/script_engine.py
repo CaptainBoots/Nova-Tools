@@ -33,8 +33,11 @@ import threading
 import time
 
 from Actions.context import ActionContext
+
 from core.registry import run_action, input_matches, timer_interval
+
 from core.conditions import evaluate_condition
+
 from core.osc_io import OSCListener, OSCSenderPool
 
 MAX_ACTIONS_PER_EVENT = 200   # runaway-loop guard shared across a fire chain
@@ -75,6 +78,7 @@ class ScriptEngine:
         self._bg_stop.clear()
         self._timer_next_fire.clear()
         self._bg_thread = threading.Thread(target=self._background_loop, daemon=True)
+
         self._bg_thread.start()
 
     def stop(self):

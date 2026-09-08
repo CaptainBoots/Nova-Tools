@@ -5,6 +5,7 @@ Action module: simulates a key press (single key or combo, quick tap
 or held for a duration).
 """
 
+
 from core import keybind
 
 ID = "keybind"
