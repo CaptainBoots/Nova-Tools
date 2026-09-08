@@ -1,7 +1,7 @@
 # Nova Tools
 
 Welcome to the **Nova Tools** suite! This repository houses a collection of lightweight, standalone, and modular tools for VRChat.
-These tools are built to be ran individually or managed collectively using [Project-Proto](https://github.com/CaptainBoots/Project-Proto).
+These tools are built to be run individually or managed collectively using [Project-Proto](https://github.com/CaptainBoots/Project-Proto).
 
 ---
 
@@ -21,7 +21,7 @@ Each tool is located in its own subdirectory with its own logic and configuratio
 - 000901 - 001000 - unreserved
 - 001001 - 001100 - unreserved
 
-Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get a ID range and to make new tools
+Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get an ID range and to make new tools
 
 ## Tools Made By Boots
 
@@ -39,7 +39,7 @@ Join the [**discord**](https://discord.gg/YDXpQPF6g9) to get a ID range and to m
 
 ## Verified Community Tools
 
-Tool Name : Tool Description : Tool Maker
+Tool Name : Tool Description : Toolmaker
 
 1. **Test:** (This is a placholder community tools will arrive soon) - Boots
 
@@ -61,7 +61,7 @@ Each tool may have unique libraries. To install dependencies for a specific tool
 cd OSC-Chatbox
 pip install -r dependency.txt
 ```
-Doing this is usually not needed as they will make there own virtual environments and install the dependency needed
+Doing this is usually not needed as they will make their own virtual environments and install the dependency needed
 
 ### Running a Tool
 Execute the tool's `main.py` entry point:
