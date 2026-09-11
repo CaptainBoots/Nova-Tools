@@ -17,6 +17,7 @@ TOOL_ID = "000105"
 
 def _ensure_venv():
     import shutil
+    cflags = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     venv_dir = os.path.join(script_dir, ".venv")
@@ -41,7 +42,7 @@ def _ensure_venv():
     if os.path.exists(venv_python):
         try:
             # Verify the venv python interpreter actually works and matches outer major/minor version
-            version_bytes = subprocess.check_output(
+            version_bytes = subprocess.check_output(creationflags=cflags,
                 [venv_python, "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
                 stderr=subprocess.DEVNULL,
             ).strip()
@@ -62,7 +63,7 @@ def _ensure_venv():
     if not venv_working or not os.path.exists(venv_dir):
         print(f"[setup] Creating virtual environment at {venv_dir}...")
         try:
-            subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
+            subprocess.check_call(creationflags=cflags, args=[sys.executable, "-m", "venv", venv_dir])
         except Exception as e:
             print(f"[setup] Failed to create virtual environment: {e}")
             sys.exit(1)
@@ -80,14 +81,12 @@ def _ensure_venv():
         print(f"[setup] Installing/updating dependencies from dependency.txt...")
         try:
             # Upgrade pip inside the venv first
-            subprocess.check_call(
-                [venv_python, "-m", "pip", "install", "--quiet", "--upgrade", "pip"],
+            subprocess.check_call(creationflags=cflags, args=[venv_python, "-m", "pip", "install", "--quiet", "--upgrade", "pip"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
             # Install the requirements
-            subprocess.check_call(
-                [venv_python, "-m", "pip", "install", "--quiet", "-r", dep_file],
+            subprocess.check_call(creationflags=cflags, args=[venv_python, "-m", "pip", "install", "--quiet", "-r", dep_file],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
             )
@@ -101,7 +100,7 @@ def _ensure_venv():
     cmd = [venv_python, os.path.abspath(__file__)] + sys.argv[1:]
     try:
         if sys.platform == "win32":
-            code = subprocess.call(cmd)
+            code = subprocess.call(cmd, creationflags=cflags)
             sys.exit(code)
         else:
             os.execv(venv_python, [venv_python, os.path.abspath(__file__)] + sys.argv[1:])
