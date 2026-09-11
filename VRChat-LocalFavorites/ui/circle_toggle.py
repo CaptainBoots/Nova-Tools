@@ -25,17 +25,15 @@ class CircleToggle(QWidget):
     DEFAULT_PAD = 3
     DEFAULT_COLOR = "#a78bfa"
 
-    def __init__(self, parent=None, *, enabled: bool = True,
-                 color: str = DEFAULT_COLOR, size: int = DEFAULT_SIZE,
-                 pad: int = DEFAULT_PAD, command=None):
+    def __init__(self, parent=None, *, enabled: bool = True, command=None, color=None, colour=None, size: int = 20, pad: int = 3):
         super().__init__(parent)
         self._enabled = enabled
-        self._color = QColor(colour)
+        self._color = QColor(colour or color or "#9D00FF")
         self._size = size
         self._pad = pad
         self.setFixedSize(size, size)
 
-        self.setCursor(Qt.PointingHandCursor)
+        self.setCursor(Qt.PointingHandCursor)      
         if command is not None:
             self.toggled.connect(command)
 
@@ -73,5 +71,5 @@ class CircleToggle(QWidget):
         self.update()
 
     def set_color(self, color: str):
-        self._color = QColor(colour)
+        self._color = QColor(color)
         self.update()

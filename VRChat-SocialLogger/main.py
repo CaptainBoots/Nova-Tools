@@ -2,7 +2,7 @@ import os
 import subprocess
 import sys
 
-VERSION = "1.0.2"
+VERSION = "1.0.4"
 NAME = "VRChat SocialLogger"
 TOOL_ID = "000109"
 
@@ -13,7 +13,7 @@ def _ensure_venv():
     cflags = getattr(subprocess, "CREATE_NO_WINDOW", 0x08000000) if sys.platform == "win32" else 0
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    venv_dir = os.path.join(script_dir, ".venv")
+    venv_dir = os.path.join(os.path.dirname(script_dir), ".venv")
     
     # Path to virtual environment python
     if sys.platform == "win32":
@@ -35,9 +35,10 @@ def _ensure_venv():
     if os.path.exists(venv_python):
         try:
             # Verify the venv python interpreter actually works and matches outer major/minor version
-            version_bytes = subprocess.check_output(creationflags=cflags,
+            version_bytes = subprocess.check_output(
                 [venv_python, "-c", "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"],
                 stderr=subprocess.DEVNULL,
+                creationflags=cflags
             ).strip()
             venv_version = version_bytes.decode("utf-8")
             outer_version = f"{sys.version_info[0]}.{sys.version_info[1]}"
@@ -56,14 +57,14 @@ def _ensure_venv():
     if not venv_working or not os.path.exists(venv_dir):
         print(f"[setup] Creating virtual environment at {venv_dir}...")
         try:
-            subprocess.check_call(creationflags=cflags, args=[sys.executable, "-m", "venv", venv_dir])
+            subprocess.check_call([sys.executable, "-m", "venv", venv_dir])
         except Exception as e:
             print(f"[setup] Failed to create virtual environment: {e}")
             sys.exit(1)
 
     # Install/update dependencies from dependency.txt
     dep_file = os.path.join(script_dir, "dependency.txt")
-    sentinel_file = os.path.join(venv_dir, "installed.sentinel")
+    sentinel_file = os.path.join(venv_dir, f"installed_{TOOL_ID}.sentinel")
     
     needs_install = True
     if os.path.exists(sentinel_file) and os.path.exists(dep_file):
@@ -73,15 +74,11 @@ def _ensure_venv():
     if needs_install and os.path.exists(dep_file):
         print(f"[setup] Installing/updating dependencies from dependency.txt...")
         try:
-            # Upgrade pip inside the venv first
-            subprocess.check_call(creationflags=cflags, args=[venv_python, "-m", "pip", "install", "--quiet", "--upgrade", "pip"],
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
             # Install the requirements
-            subprocess.check_call(creationflags=cflags, args=[venv_python, "-m", "pip", "install", "--quiet", "-r", dep_file],
+            subprocess.check_call([venv_python, "-m", "pip", "install", "--quiet", "-r", dep_file],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
+                creationflags=cflags
             )
             # Write sentinel file to record successful installation
             with open(sentinel_file, "w") as f:
