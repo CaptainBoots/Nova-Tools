@@ -21,21 +21,59 @@ from dataclasses import dataclass, field
 
 # ── Locating the log file ────────────────────────────────────────────
 
-def default_log_dir() -> str:
-    # %USERPROFILE%\AppData\LocalLow is not exposed by a single env var;
-    # build it from USERPROFILE the same way VRChat itself resolves it.
-    userprofile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
-    return os.path.join(userprofile, "AppData", "LocalLow", "VRChat", "VRChat")
+import sys
+
+def default_log_dirs() -> list[str]:
+    if sys.platform == "win32":
+        userprofile = os.environ.get("USERPROFILE", os.path.expanduser("~"))
+        return [os.path.join(userprofile, "AppData", "LocalLow", "VRChat", "VRChat")]
+
+    bases = []
+    home = os.path.expanduser("~")
+    steam_roots = [
+        os.path.join(home, ".steam", "steam"),
+        os.path.join(home, ".local", "share", "Steam"),
+        os.path.join(home, ".var", "app", "com.valvesoftware.Steam", ".local", "share", "Steam"),  # Flatpak
+    ]
+    for root in steam_roots:
+        bases.append(os.path.join(
+            root, "steamapps", "compatdata", "438100", "pfx",
+            "drive_c", "users", "steamuser", "AppData", "LocalLow", "VRChat", "VRChat",
+        ))
+
+    for root in steam_roots:
+        pattern = os.path.join(root, "steamapps", "libraryfolders.vdf")
+        if os.path.isfile(pattern):
+            try:
+                with open(pattern, "r", encoding="utf-8", errors="ignore") as f:
+                    for m in re.finditer(r'"path"\s+"([^"]+)"', f.read()):
+                        lib_path = m.group(1).replace("\\\\", "/")
+                        bases.append(os.path.join(
+                            lib_path, "steamapps", "compatdata", "438100", "pfx",
+                            "drive_c", "users", "steamuser", "AppData", "LocalLow", "VRChat", "VRChat",
+                        ))
+            except OSError:
+                pass
+
+    bases.append(os.path.join(home, ".wine", "drive_c", "users", os.environ.get("USER", "steamuser"),
+                              "AppData", "LocalLow", "VRChat", "VRChat"))
+    return bases
 
 
 def find_latest_log(log_dir: str | None = None) -> str | None:
     """VRChat writes a new output_log_*.txt each session. Return the
     most recently modified one, or None if VRChat has never run / the
     folder doesn't exist."""
-    log_dir = log_dir or default_log_dir()
-    if not os.path.isdir(log_dir):
-        return None
-    candidates = glob.glob(os.path.join(log_dir, "output_log_*.txt"))
+    candidates = []
+    
+    if log_dir is not None:
+        if os.path.isdir(log_dir):
+            candidates.extend(glob.glob(os.path.join(log_dir, "output_log_*.txt")))
+    else:
+        for base in default_log_dirs():
+            if os.path.isdir(base):
+                candidates.extend(glob.glob(os.path.join(base, "output_log_*.txt")))
+
     if not candidates:
         return None
     return max(candidates, key=os.path.getmtime)
@@ -91,7 +129,7 @@ class VRLogTail:
     automatically."""
 
     def __init__(self, log_dir: str | None = None):
-        self._log_dir = log_dir or default_log_dir()
+        self._log_dir = log_dir
         self._path: str | None = None
         self._pos = 0
         self._current_world_name = ""

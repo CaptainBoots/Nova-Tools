@@ -24,7 +24,12 @@ PROFILE_COLORS = [
     "#ffd166", "#ff4c6a", "#a87fff", "#ff6eb4",
 ]
 
-DEFAULT_LAUNCH_EXE = r"C:\Program Files (x86)\Steam\steamapps\common\VRChat\launch.exe"
+import sys
+
+if sys.platform == "win32":
+    DEFAULT_LAUNCH_EXE = r"C:\Program Files (x86)\Steam\steamapps\common\VRChat\launch.exe"
+else:
+    DEFAULT_LAUNCH_EXE = os.path.expanduser("~/.local/share/Steam/steamapps/common/VRChat/launch.exe")
 
 LIMIT_NOTE = (
     "VRChat limits 3 simultaneous instances per public IP address.\n"
