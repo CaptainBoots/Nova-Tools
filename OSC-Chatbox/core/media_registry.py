@@ -48,7 +48,13 @@ guessing from a browser AUMID.
 # fmt: off
 PLAYER_REGISTRY: list[tuple[str, str, list[str]]] = [
     # ── 1. Dedicated music/streaming apps + PWAs ─────────────────────────────
-    ("spotify",        "Spotify",            ["spotify"]),
+    # "spotify" covers the desktop app on every OS out of the box with NO
+    # login: Linux MPRIS (org.mpris.MediaPlayer2.spotify/spotifyd/ncspot)
+    # + browser web-player URLs (open.spotify.com), Windows SMTC AUMID
+    # (SpotifyAB.SpotifyMusic_...!Spotify). The optional Web API login in
+    # Settings is Premium-only (Spotify 403s Free owners since Feb 2026)
+    # and only adds phone/Connect playback — never required.
+    ("spotify",        "Spotify",            ["spotify", "spotifyab", "spotifymusic", "spotifyd", "ncspot", "librespot"]),
     ("applemusic",     "Apple Music",        ["applemusic"]),
     ("itunes",         "iTunes",             ["itunes"]),
     ("tidal",          "Tidal",              ["tidal"]),

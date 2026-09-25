@@ -82,22 +82,23 @@ HELP_PAGES = [
         ),
     },
     {
-        "title": "LibreHardwareMonitor",
+        "title": "Hardware Sensors",
         "content": (
-            "CPU/GPU temperature, wattage, and load modules\n"
-            "require LibreHardwareMonitor (LHM) to be running.\n\n"
-            "If you want to run the included one you can run it from the toolbox.\n\n"
-            "If you want to get it from github — Setup:\n"
-            "  1. Download LHM from GitHub:\n"
-            "     github.com/LibreHardwareMonitor/LibreHardwareMonitor\n"
-            "  2. Run LibreHardwareMonitor.exe as Administrator\n"
-            "  3. Options → Web Server → Run\n"
-            "     (default port 8085)\n\n"
-            "LHM URL in the config should be:\n"
-            "  http://localhost:8085/data.json\n\n"
-            "LHM is Windows-only. On Linux, CPU/GPU stat modules\n"
-            "read sensors directly from /sys instead and don't\n"
-            "need LHM running at all."
+            "CPU/GPU/RAM modules read sensors directly — no\n"
+            "LibreHardwareMonitor needed, nothing extra launched.\n\n"
+            "Windows uses built-in APIs (WMI, performance\n"
+            "counters, nvidia-smi on NVIDIA GPUs).\n"
+            "  • CPU temperature/power have NO built-in Windows\n"
+            "    API — they need a sensor driver AND admin rights.\n"
+            "    Without both they show N/A (never estimated).\n"
+            "    Everything else (CPU/GPU load, NVIDIA temp/\n"
+            "    power, RAM/VRAM) works as a normal user.\n"
+            "  • If the status bar says admin is needed, close\n"
+            "    the app and run it as Administrator.\n\n"
+            "Linux reads /sys sensors directly.\n"
+            "  • CPU wattage (RAPL) is often root-only: if the\n"
+            "    status bar says so, restart with sudo for real\n"
+            "    measured Watts. N/A is never estimated."
         ),
     },
     {

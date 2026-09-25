@@ -14,7 +14,6 @@ import sys
 from typing import Optional
 
 from core.gpu_ids import GPU_ID_MAP, AMBIGUOUS_IDS
-from hardware.lhm import hw_nodes, is_gpu, numeric
 
 
 _AMD_IGPU_KEYWORDS = (
@@ -140,8 +139,10 @@ def _linux_display_lines() -> list[str]:
     Discover display adapters through lspci.
 
     Supports VGA, 3D-controller and Display-controller devices.
+    Falls back to a sysfs PCI-class scan when lspci is missing
+    (minimal containers/distros) — class 0x03xxxx = display.
     """
-    return [
+    lines = [
         line
         for line in _command_lines(
             ["lspci", "-Dnn"]
@@ -152,6 +153,50 @@ def _linux_display_lines() -> list[str]:
                 or "Display controller" in line
         )
     ]
+    if lines:
+        return lines
+    return _sysfs_display_lines()
+
+
+def _sysfs_display_lines() -> list[str]:
+    """Best-effort display discovery without lspci.
+
+    Scans /sys/bus/pci/devices/*/class for 0x03xxxx and builds
+    lspci-like lines from the vendor/device sysfs files so the rest
+    of the parsing pipeline keeps working unchanged.
+    """
+    import glob
+    import os
+    lines: list[str] = []
+    for dev_path in sorted(glob.glob("/sys/bus/pci/devices/*")):
+        try:
+            with open(os.path.join(dev_path, "class")) as f:
+                cls = f.read().strip().lower()
+            if not cls.startswith("0x03"):
+                continue
+            with open(os.path.join(dev_path, "vendor")) as f:
+                vid = f.read().strip().lower().replace("0x", "").zfill(4)[-4:]
+            with open(os.path.join(dev_path, "device")) as f:
+                did = f.read().strip().lower().replace("0x", "").zfill(4)[-4:]
+            slot = os.path.basename(dev_path)
+            # Human name: try modalias-adjacent product via lspci-less
+            # lookup — use uevent DRIVER + PCI id as the display name
+            # seed; detect_gpus() will resolve it via GPU_ID_MAP.
+            name = ""
+            for cand in ("label",):
+                try:
+                    with open(os.path.join(dev_path, cand)) as f:
+                        name = f.read().strip()
+                    if name:
+                        break
+                except OSError:
+                    pass
+            if not name:
+                name = f"Display controller [{vid}:{did}]"
+            lines.append(f"{slot} VGA compatible controller: {name} [{vid}:{did}]")
+        except (OSError, ValueError):
+            continue
+    return lines
 
 
 def _pci_devices() -> list[tuple[str, str, str]]:
@@ -377,46 +422,14 @@ def detect_gpus(data=None) -> list[str]:
     """
     Return all detected GPU names in the same order as the display devices.
 
-    When LHM data is supplied, its GPU-node order is preferred because the
-    Windows sensor readers use that same node list. This keeps names and
-    sensor indexes aligned.
+    Pure OS/command discovery (no LHM, no driver):
 
-    If LHM does not provide GPU nodes, detection falls back to:
-
-        Windows PowerShell
-        Linux lspci
+        Windows PowerShell (Win32_VideoController)
+        Linux lspci (+ sysfs fallback)
         NVIDIA nvidia-smi
+
+    `data` is accepted for backward compatibility and ignored.
     """
-
-    # ── Prefer LHM GPU node ordering ──────────────────────────────────────
-
-    if data:
-        names = []
-
-        try:
-            for hw in hw_nodes(data):
-                if is_gpu(
-                        hw.get(
-                            "Text",
-                            "",
-                        )
-                ):
-                    text = str(
-                        hw.get(
-                            "Text",
-                            "",
-                        )
-                    ).strip()
-
-                    if text:
-                        names.append(text)
-
-        except Exception:
-            names = []
-
-        if names:
-            return names
-
 
     # ── OS/command discovery ─────────────────────────────────────────────
 
@@ -604,221 +617,76 @@ def detect_vram_type(
     return "GDDR6"
 
 
-# ── LHM readers ───────────────────────────────────────────────────────────────
-
-def _gpu_nodes(data) -> list[dict]:
-    try:
-        return [
-            hw
-            for hw in hw_nodes(data)
-            if is_gpu(
-                hw.get(
-                    "Text",
-                    "",
-                )
-            )
-        ]
-    except Exception:
-        return []
-
-
-def _selected_gpu_nodes(
-        data,
-        index: int,
-) -> list[dict]:
-    nodes = _gpu_nodes(data)
-
-    if 0 <= index < len(nodes):
-        return [nodes[index]]
-
-    return []
-
+# ── Native readers (no LHM, no driver) ───────────────────────────────────────
 
 def get_gpu_temp(
-        data,
         index: int = 0,
+        data=None,
 ) -> int:
-    if sys.platform != "win32":
-        return _linux_gpu_stat(
-            "temp",
-            index,
-        )
+    """GPU temperature °C (0 = unknown/"N/A").
 
-    try:
-        for hw in _selected_gpu_nodes(
-                data,
-                index,
-        ):
-            for cat in hw.get(
-                    "Children",
-                    [],
-            ):
-                if (
-                        "temperature"
-                        not in cat.get(
-                    "Text",
-                    "",
-                ).lower()
-                ):
-                    continue
-
-                for sensor in cat.get(
-                        "Children",
-                        [],
-                ):
-                    st = sensor.get(
-                        "Text",
-                        "",
-                    ).lower()
-
-                    if (
-                            "distance" in st
-                            or "memory" in st
-                    ):
-                        continue
-
-                    if (
-                            "gpu core" in st
-                            or "gpu temperature" in st
-                    ):
-                        try:
-                            return int(
-                                numeric(
-                                    sensor.get(
-                                        "Value",
-                                        0,
-                                    )
-                                )
-                            )
-                        except ValueError:
-                            pass
-
-    except Exception:
-        pass
-
-    return 0
+    Windows: nvidia-smi on NVIDIA; AMD/Intel have no inbox temp API,
+    so they read 0 without a sensor driver. Linux: sysfs hwmon.
+    """
+    if sys.platform == "win32":
+        return _nvidia_smi_stat("temp", index)
+    return _linux_gpu_stat(
+        "temp",
+        index,
+    )
 
 
 def get_gpu_power(
-        data,
         index: int = 0,
+        data=None,
 ) -> int:
-    if sys.platform != "win32":
-        return _linux_gpu_stat(
-            "power",
-            index,
-        )
+    """GPU board power W (0 = unknown/"N/A"). Same sources as temp."""
+    if sys.platform == "win32":
+        return _nvidia_smi_stat("power", index)
+    return _linux_gpu_stat(
+        "power",
+        index,
+    )
 
+
+def _windows_gpu_load_perf(index: int = 0) -> int:
+    """GPU load from Windows performance counters (no admin needed).
+
+    Sums 3D-engine utilisation per physical adapter ("phys_N"); on
+    single-GPU systems without phys tags the grand total is used for
+    index 0. Sums can exceed 100 with several busy engines — clamped.
+    """
     try:
-        for hw in _selected_gpu_nodes(
-                data,
-                index,
-        ):
-            for cat in hw.get(
-                    "Children",
-                    [],
-            ):
-                if (
-                        "power"
-                        not in cat.get(
-                    "Text",
-                    "",
-                ).lower()
-                ):
-                    continue
-
-                for sensor in cat.get(
-                        "Children",
-                        [],
-                ):
-                    st = sensor.get(
-                        "Text",
-                        "",
-                    ).lower()
-
-                    if any(
-                            x in st
-                            for x in (
-                                    "gpu package",
-                                    "gpu total",
-                                    "board power",
-                                    "gpu power",
-                                    "power",
-                            )
-                    ):
-                        try:
-                            val = numeric(
-                                sensor.get(
-                                    "Value",
-                                    0,
-                                )
-                            )
-                            if val > 0:
-                                return int(val)
-                        except ValueError:
-                            pass
-
+        from hardware.win32 import gpu_engine_util
+        per_phys, total = gpu_engine_util()
+        if index in per_phys:
+            return max(0, min(100, int(round(per_phys[index]))))
+        if index == 0 and total > 0:
+            return max(0, min(100, int(round(total))))
     except Exception:
         pass
-
-    return _nvidia_smi_stat("power", index)
+    return 0
 
 
 def get_gpu_load(
-        data,
         index: int = 0,
+        data=None,
 ) -> int:
-    if sys.platform != "win32":
-        return _linux_gpu_stat(
-            "load",
-            index,
-        )
+    """GPU core load % (0 = idle or unknown).
 
-    try:
-        for hw in _selected_gpu_nodes(
-                data,
-                index,
-        ):
-            for cat in hw.get(
-                    "Children",
-                    [],
-            ):
-                if (
-                        "load"
-                        not in cat.get(
-                    "Text",
-                    "",
-                ).lower()
-                ):
-                    continue
-
-                for sensor in cat.get(
-                        "Children",
-                        [],
-                ):
-                    if (
-                            "gpu core"
-                            in sensor.get(
-                        "Text",
-                        "",
-                    ).lower()
-                    ):
-                        try:
-                            return int(
-                                numeric(
-                                    sensor.get(
-                                        "Value",
-                                        0,
-                                    )
-                                )
-                            )
-                        except ValueError:
-                            pass
-
-    except Exception:
-        pass
-
-    return 0
+    Windows: nvidia-smi on NVIDIA, else the inbox "\\GPU Engine"
+    performance counters (works for AMD/Intel too, no admin needed).
+    Linux: sysfs gpu_busy_percent / Intel freq ratio.
+    """
+    if sys.platform == "win32":
+        v = _nvidia_smi_stat("load", index)
+        if v > 0:
+            return v
+        return _windows_gpu_load_perf(index)
+    return _linux_gpu_stat(
+        "load",
+        index,
+    )
 
 
 # ── Linux / command fallbacks ─────────────────────────────────────────────────
@@ -864,85 +732,221 @@ def _nvidia_smi_stat(
         return 0
 
 
+def _rocm_smi_stat(kind: str, index: int = 0) -> int:
+    """AMD rocm-smi fallback (covers AMD GPUs where sysfs hwmon is
+    unreadable due to permissions). Best-effort, returns 0."""
+    query = {
+        "temp": ["--showtemp", r"(\d+\.?\d*)\s*c"],
+        "load": ["--showuse", r"(\d+)\s*%"],
+        "power": ["--showpower", r"(\d+\.?\d*)\s*W"],
+    }.get(kind)
+    if not query:
+        return 0
+    rows = _command_lines(["rocm-smi", query[0]])
+    if not (0 <= index < len(rows) or rows):
+        return 0
+    # rocm-smi prints per-GPU lines; pick index-th matching line.
+    found: list[float] = []
+    for line in rows:
+        m = re.search(query[1], line, flags=re.IGNORECASE)
+        if m:
+            try:
+                found.append(float(m.group(1)))
+            except ValueError:
+                pass
+    if 0 <= index < len(found):
+        return int(found[index])
+    if found and index == 0:
+        return int(found[0])
+    return 0
+
+
+def _intel_freq_load(card: str) -> int:
+    """Intel iGPU load estimate from GT freq (0-100).
+
+    Intel exposes no gpu_busy_percent; actual/max freq ratio is a
+    rough but useful proxy and only needs sysfs reads."""
+    try:
+        cur = int(open(f"{card}/gt_cur_freq_mhz").read().strip())
+        mx = int(open(f"{card}/gt_max_freq_mhz").read().strip())
+        if mx > 0 and cur >= 0:
+            return max(0, min(100, int(round(cur * 100.0 / mx))))
+    except (OSError, ValueError):
+        pass
+    # Newer kernels: gt0/gt1 sub-nodes
+    import glob as _glob
+    for freq in sorted(_glob.glob(f"{card}/gt*/cur_freq_mhz")):
+        try:
+            cur = int(open(freq).read().strip())
+            mxf = freq.replace("cur_freq_mhz", "max_freq_mhz")
+            mx = int(open(mxf).read().strip())
+            if mx > 0 and cur >= 0:
+                return max(0, min(100, int(round(cur * 100.0 / mx))))
+        except (OSError, ValueError):
+            continue
+    return 0
+
+
+def _drm_cards_ordered() -> list[str]:
+    """DRM card device paths ordered to match _pci_devices() order when
+    possible (so GPU index 0 = first lspci GPU), else sysfs sort order.
+
+    Matches via PCI slot (uevent PCI_SLOT_NAME) against the lspci
+    domain:bus:device.function prefix.
+    """
+    import glob as _glob
+    import os as _os
+    cards = sorted(_glob.glob("/sys/class/drm/card*/device"))
+    if len(cards) <= 1:
+        return cards
+    try:
+        pci_order = [ln.split(" ")[0].lower() for ln in _linux_display_lines()]
+    except Exception:
+        return cards
+    if not pci_order:
+        return cards
+
+    def _slot_of(card: str) -> str:
+        for key in ("uevent",):
+            try:
+                with open(_os.path.join(card, key)) as f:
+                    for line in f:
+                        if line.startswith("PCI_SLOT_NAME="):
+                            return line.split("=", 1)[1].strip().lower()
+            except OSError:
+                pass
+        return ""
+
+    ranked: list[tuple[int, str]] = []
+    for card in cards:
+        slot = _slot_of(card)
+        # lspci lines look like "0000:03:00.0 ..."; slot is "0000:03:00.0".
+        rank = len(pci_order)
+        for i, prefix in enumerate(pci_order):
+            if slot and slot == prefix:
+                rank = i
+                break
+        ranked.append((rank, card))
+    ranked.sort(key=lambda t: t[0])
+    return [c for _, c in ranked]
+
+
+def _hwmon_temp_c(hwmon: str) -> int | None:
+    """Best temp from one hwmon dir: prefer edge/junction/package/core
+    labels, else hottest tempN_input. Returns None if unreadable."""
+    import glob as _glob
+    best: tuple[int, int] | None = None  # (score, celsius)
+    for temp_file in sorted(_glob.glob(f"{hwmon}/temp*_input")):
+        try:
+            raw = open(temp_file).read().strip()
+            if not raw:
+                continue
+            val = int(raw)
+            if val <= 0:
+                continue
+            celsius = val // 1000 if val > 1000 else val
+            if not (0 < celsius < 150):
+                continue
+        except (OSError, ValueError):
+            continue
+        try:
+            label = open(temp_file.replace("_input", "_label")).read().strip().lower()
+        except (OSError, ValueError):
+            label = ""
+        if any(k in label for k in ("edge", "junction", "package", "core", "gpu", "hotspot", "tdie", "tctl")):
+            score = 0
+        elif "mem" in label or "vram" in label or "hbm" in label:
+            score = 2  # memory temp — only if nothing better
+        else:
+            score = 1
+        if best is None or (score, celsius) < (best[0], 0) or (score == best[0] and celsius > best[1]):
+            if best is None or score < best[0] or (score == best[0] and celsius > best[1]):
+                best = (score, celsius)
+    return best[1] if best else None
+
+
+def _hwmon_power_w(hwmon: str) -> int | None:
+    """Best power from one hwmon dir. sysfs reports µW; some drivers
+    report mW or W on exotic hw — sanity-clamp to 0-1200 W."""
+    for power_file in ("power1_average", "power1_input",
+                       "power2_average", "power2_input"):
+        try:
+            raw = open(f"{hwmon}/{power_file}").read().strip()
+            if not raw:
+                continue
+            val = int(raw)
+            if val <= 0:
+                continue
+            # Heuristic unit detect: sysfs standard is µW (>= 1_000_000
+            # for a 1 W+ GPU). Values < 5000 are likely already Watts.
+            if val >= 100000:
+                watts = val / 1_000_000.0
+            elif val >= 5000:
+                watts = val / 1000.0  # mW driver quirk
+            else:
+                watts = float(val)
+            if 0 < watts < 1200:
+                return int(round(watts))
+        except (OSError, ValueError):
+            continue
+    return None
+
+
 def _linux_gpu_stat(
         kind: str,
         index: int = 0,
 ) -> int:
     import glob
 
-    cards = sorted(
-        glob.glob(
-            "/sys/class/drm/card*/device"
-        )
-    )
+    cards = _drm_cards_ordered()
 
+    # Also check class-level hwmon (some NVIDIA/Intel setups expose the
+    # GPU sensor at /sys/class/hwmon/hwmonN with no drm link).
+    class_hwmons = sorted(glob.glob("/sys/class/hwmon/hwmon*"))
 
     if 0 <= index < len(cards):
         card = cards[index]
 
-
         if kind == "temp":
-            for hwmon in glob.glob(
-                    f"{card}/hwmon/hwmon*"
-            ):
-                try:
-                    return (
-                            int(
-                                open(
-                                    f"{hwmon}/temp1_input"
-                                ).read().strip()
-                            )
-                            // 1000
-                    )
-
-                except (
-                        OSError,
-                        ValueError,
-                ):
-                    pass
-
+            scored: list[tuple[int, int]] = []
+            for hwmon in glob.glob(f"{card}/hwmon/hwmon*"):
+                v = _hwmon_temp_c(hwmon)
+                if v is not None:
+                    scored.append((0, v))
+            # Fallback: class-level hwmon matching this card's vendor?
+            if not scored and len(cards) == 1 and class_hwmons:
+                for hwmon in class_hwmons:
+                    try:
+                        nm = open(f"{hwmon}/name").read().strip().lower()
+                    except (OSError, ValueError):
+                        continue
+                    if any(k in nm for k in ("amdgpu", "nvidia", "i915", "xe", "nouveau")):
+                        v = _hwmon_temp_c(hwmon)
+                        if v is not None:
+                            scored.append((1, v))
+            if scored:
+                scored.sort()
+                return scored[0][1]
 
         elif kind == "power":
-            for hwmon in glob.glob(
-                    f"{card}/hwmon/hwmon*"
-            ):
-                for power_file in (
-                        "power1_average",
-                        "power1_input",
-                ):
-                    try:
-                        return (
-                                int(
-                                    open(
-                                        f"{hwmon}/{power_file}"
-                                    ).read().strip()
-                                )
-                                // 1_000_000
-                        )
-
-                    except (
-                            OSError,
-                            ValueError,
-                    ):
-                        pass
-
+            for hwmon in glob.glob(f"{card}/hwmon/hwmon*"):
+                v = _hwmon_power_w(hwmon)
+                if v is not None:
+                    return v
 
         elif kind == "load":
             try:
-                return int(
-                    open(
-                        f"{card}/gpu_busy_percent"
-                    ).read().strip()
-                )
-
-            except (
-                    OSError,
-                    ValueError,
-            ):
+                return max(0, min(100, int(
+                    open(f"{card}/gpu_busy_percent").read().strip()
+                )))
+            except (OSError, ValueError):
                 pass
+            intel = _intel_freq_load(card)
+            if intel:
+                return intel
 
-
-    return _nvidia_smi_stat(
-        kind,
-        index,
-    )
+    # ── CLI fallbacks (no sysfs match or index out of range) ──────────
+    v = _nvidia_smi_stat(kind, index)
+    if v:
+        return v
+    return _rocm_smi_stat(kind, index)

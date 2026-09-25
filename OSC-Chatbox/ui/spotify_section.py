@@ -39,9 +39,18 @@ from ui import theme
 from ui.master_password_dialogue import open_master_password_prompt
 
 REDIRECT_NOTE = (
-    "Needs your own free Spotify client ID (Dashboard -> Create app -> "
-    "redirect URI http://127.0.0.1:0/callback, or tick \"skip\" for redirect "
-    "URI if offered) — spotify doesn't allow third-party apps to share one."
+    "Optional — Spotify Premium only. Since Feb 2026 Spotify's Web API "
+    "returns 403 without an active Premium subscription on the app owner's "
+    "account, so Free users should SKIP this entirely.\n\n"
+    "Free detection needs no setup: the Spotify desktop app (and the "
+    "open.spotify.com web player in a browser) is picked up automatically "
+    "via local media integration (MPRIS on Linux / SMTC on Windows) and "
+    "competes in Player Priority like any other player.\n\n"
+    "Only connect here if you have Premium AND want phone/Spotify Connect "
+    "playback too. Needs your own free Spotify client ID (Dashboard -> "
+    "Create app -> redirect URI http://127.0.0.1:0/callback, or tick \"skip\" "
+    "for redirect URI if offered) — spotify doesn't allow third-party apps "
+    "to share one."
 )
 
 

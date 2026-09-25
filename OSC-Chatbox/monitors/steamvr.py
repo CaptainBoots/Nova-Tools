@@ -9,6 +9,11 @@ try:
 except ImportError:
     _HAS_OPENVR = False
 
+# Track whether init has already failed permanently so the
+# polling thread stops spamming the console every 2 seconds.
+_init_failed = False
+_failed_reason: str = ""
+
 _data = {
     "vr_fps":              None,
     "vr_frametimes":       None,
@@ -25,6 +30,10 @@ _data = {
 }
 _lock    = threading.Lock()
 _started = False
+
+def has_openvr() -> bool:
+    """Can the openvr module actually be initialised?"""
+    return _HAS_OPENVR and not _init_failed
 
 def _pct(val) -> int | None:
     try:
@@ -47,12 +56,19 @@ def _get_battery(vrsys, idx):
         return None, None
 
 def _poll():
+    global _init_failed, _failed_reason
     initialized = False
     while True:
         try:
+            if _init_failed:
+                # Permanent failure — give up, let the thread
+                # die naturally (daemon). No more spam.
+                return
+
             if not initialized:
                 openvr.init(openvr.VRApplication_Background)
                 initialized = True
+                print("[steamvr monitor] ready")
 
             vrsys  = openvr.VRSystem()
             comp   = openvr.VRCompositor()
@@ -127,6 +143,12 @@ def _poll():
                 except Exception:
                     pass
                 initialized = False
+            else:
+                # init itself failed — remember why and stop trying.
+                _init_failed = True
+                _failed_reason = str(e)
+                print(f"[steamvr monitor] init failed — VR modules will show N/A: {e}")
+            continue
 
         time.sleep(2)
 
@@ -142,4 +164,7 @@ def start():
 
 def snapshot() -> dict:
     with _lock:
-        return dict(_data)
+        d = dict(_data)
+    if _init_failed:
+        d["_vr_init_error"] = _failed_reason
+    return d

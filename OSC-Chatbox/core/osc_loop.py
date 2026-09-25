@@ -11,6 +11,7 @@ Page layout is read from cfg["pages"] each tick so live edits take effect.
 """
 
 import asyncio
+import sys
 import threading
 import time
 from typing import Callable, Optional
@@ -18,14 +19,15 @@ from typing import Callable, Optional
 import psutil
 from pythonosc.udp_client import SimpleUDPClient
 
-import hardware.lhm as lhm_mod
-
 from hardware.cpu import (
     detect_cpu,
     get_cpu_temp,
     get_cpu_power,
     get_cpu_load,
+    cpu_power_access,
 )
+
+from hardware.win32 import is_admin
 
 from hardware.gpu import (
     detect_gpus,
@@ -35,8 +37,6 @@ from hardware.gpu import (
     get_gpu_power,
     get_gpu_load,
 )
-
-from hardware.lhm import get_lhm_data
 
 from hardware.memory import (
     detect_dram_type,
@@ -55,6 +55,12 @@ from monitors.media import (
     estimate_position,
 )
 
+# Media worker fetch (used when running as root/admin)
+try:
+    from core.media_bridge import fetch_media as main_fetch_media
+except ImportError:
+    main_fetch_media = None
+
 from monitors.network import sample as net_sample
 from monitors.weather import fetch as weather_fetch
 
@@ -71,7 +77,6 @@ from core.state import (
 
 # ── Polling intervals ─────────────────────────────────────────────────────────
 
-_LHM_INTERVAL     = 1.0
 _WEATHER_INTERVAL = 300
 _MEDIA_INTERVAL   = 1.0
 
@@ -135,14 +140,6 @@ def _run(
         return
 
 
-    # ── Set LHM URL from config ───────────────────────────────────────────────
-
-    lhm_mod.LHM_URL = cfg.get(
-        "lhm_api",
-        "http://localhost:8085/data.json",
-    )
-
-
     # ── One-time hardware detection ───────────────────────────────────────────
     #
     # Fake Data Mode (Dev Menu) is only read here at Start time — CPU/GPU
@@ -166,17 +163,8 @@ def _run(
     state.dram_type = fake.dram_type() if state.fake_data else detect_dram_type()
 
 
-    # Get LHM before building the GPU list.
-    #
-    # On Windows, this means the GPU names can use the same GPU-node order
-    # that the sensor readers use. If LHM does not contain GPU nodes,
-    # detect_gpus() falls back to PowerShell/lspci/nvidia-smi.
-
-    init_lhm = None if state.fake_data else get_lhm_data()
-
-    gpu_names = fake.gpu_names() if state.fake_data else detect_gpus(
-        init_lhm
-    )
+    # Native OS/command discovery on all platforms (no LHM anywhere).
+    gpu_names = fake.gpu_names() if state.fake_data else detect_gpus()
 
 
     if not gpu_names:
@@ -212,7 +200,7 @@ def _run(
                 "vram_total": (
                     fake.vram_total(index)
                     if state.fake_data
-                    else get_vram_total(init_lhm, index)
+                    else get_vram_total(index)
                 ),
             }
         )
@@ -240,10 +228,7 @@ def _run(
         state.vram_total = "?"
 
 
-    state.dram_total = fake.dram_total() if state.fake_data else get_dram_total(
-        init_lhm
-    )
-
+    state.dram_total = fake.dram_total() if state.fake_data else get_dram_total()
 
     print(
         "CPU: "
@@ -258,33 +243,34 @@ def _run(
     )
 
 
-    # ── LHM background poller ─────────────────────────────────────────────────
-
-    lhm_cache = {
-        "data": init_lhm,
-        "lock": threading.Lock(),
-    }
-
-
-    def _poll_lhm():
-        while state.running:
-            if not state.fake_data:
-                data = get_lhm_data()
-
-                if data:
-
-                    with lhm_cache["lock"]:
-                        lhm_cache["data"] = data
-
-            time.sleep(
-                _LHM_INTERVAL
-            )
-
-
-    threading.Thread(
-        target=_poll_lhm,
-        daemon=True,
-    ).start()
+    # ── Admin-only sensor notice ──────────────────────────────────────
+    # Some stats are only readable elevated and are NEVER estimated:
+    # RAPL CPU watts on Linux (root-only energy_uj), CPU temp/power on
+    # Windows (no inbox API — any sensor driver needs admin). The status
+    # line asks for admin so the person knows why N/A shows.
+    admin_note = ""
+    if not state.fake_data:
+        try:
+            if sys.platform == "win32":
+                if not is_admin():
+                    admin_note = " — CPU temp/power need admin (run as Administrator)"
+                    print(
+                        "[sensors] CPU temperature/power have no built-in "
+                        "Windows API and need a sensor driver running as "
+                        "Administrator — showing N/A until then. Everything "
+                        "else (CPU/GPU load, NVIDIA temp/power, RAM/VRAM, "
+                        "media) works without admin."
+                    )
+            elif cpu_power_access() == "denied":
+                admin_note = " — CPU watts need admin (restart with sudo)"
+                print(
+                    "[sensors] CPU wattage sensor is root-only on this "
+                    "system (energy_uj not readable). Restart OSC-Chatbox "
+                    "with sudo for real measured CPU Watts — N/A is shown "
+                    "instead of an estimate."
+                )
+        except Exception:
+            admin_note = ""
 
 
     # ── Media background poller ───────────────────────────────────────────────
@@ -298,11 +284,16 @@ def _run(
     def _poll_media():
         async def _loop():
             while state.running:
-                info = await (
-                    fake.media_fetch()
-                    if state.fake_data
-                    else media_mod.fetch()
-                )
+                if state.fake_data:
+                    info = await fake.media_fetch()
+                elif main_fetch_media:
+                    # Running as root/admin — use worker (sync call in thread)
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+                        fut = ex.submit(main_fetch_media)
+                        info = await asyncio.wrap_future(fut)
+                else:
+                    info = await media_mod.fetch()
 
 
                 with media_cache["lock"]:
@@ -373,7 +364,7 @@ def _run(
     media_pos_state: dict = {}
 
 
-    status_cb("Running")
+    status_cb(f"Running{admin_note}")
 
 
     # ── Main loop ─────────────────────────────────────────────────────────────
@@ -398,139 +389,121 @@ def _run(
 
 
             # ── Hardware sensors ──────────────────────────────────────────────
+            # Native readers run on every tick on all platforms (no LHM).
+
+            # Read every GPU independently.
+            #
+            # This is the important part that makes the UI's GPU index
+            # actually control which GPU supplies the stats.
+
+            gpu_stats = []
+
+            for index, gpu in enumerate(
+                    state.gpus
+            ):
+                gpu_copy = dict(gpu)
+
+                if state.fake_data:
+                    gpu_copy["load"]  = fake.gpu_load(index)
+                    gpu_copy["temp"]  = fake.gpu_temp(index)
+                    gpu_copy["power"] = fake.gpu_power(index)
+                    gpu_copy["vram_used"] = fake.vram_used(index)
+                else:
+                    gpu_copy["load"] = get_gpu_load(index)
+
+                    gpu_copy["temp"] = get_gpu_temp(index)
+
+                    gpu_copy["power"] = get_gpu_power(index)
+
+                    gpu_copy["vram_used"] = get_vram_used(index)
 
 
-            with lhm_cache["lock"]:
-                lhm_data = lhm_cache["data"]
-
-
-            if state.fake_data or lhm_data:
-
-                # Read every GPU independently.
-                #
-                # This is the important part that makes the UI's GPU index
-                # actually control which GPU supplies the stats.
-
-                gpu_stats = []
-
-                for index, gpu in enumerate(
-                        state.gpus
+                if (
+                        gpu_copy.get(
+                            "vram_total",
+                            "?",
+                        )
+                        == "?"
                 ):
-                    gpu_copy = dict(gpu)
-
-                    if state.fake_data:
-                        gpu_copy["load"]  = fake.gpu_load(index)
-                        gpu_copy["temp"]  = fake.gpu_temp(index)
-                        gpu_copy["power"] = fake.gpu_power(index)
-                        gpu_copy["vram_used"] = fake.vram_used(index)
-                    else:
-                        gpu_copy["load"] = get_gpu_load(
-                            lhm_data,
-                            index,
-                        )
-
-                        gpu_copy["temp"] = get_gpu_temp(
-                            lhm_data,
-                            index,
-                        )
-
-                        gpu_copy["power"] = get_gpu_power(
-                            lhm_data,
-                            index,
-                        )
-
-                        gpu_copy["vram_used"] = get_vram_used(
-                            lhm_data,
-                            index,
-                        )
-
-
-                    if (
-                            gpu_copy.get(
-                                "vram_total",
-                                "?",
-                            )
-                            == "?"
-                    ):
-                        gpu_copy["vram_total"] = (
-                            fake.vram_total(index)
-                            if state.fake_data
-                            else get_vram_total(lhm_data, index)
-                        )
-
-
-                    gpu_stats.append(
-                        gpu_copy
+                    gpu_copy["vram_total"] = (
+                        fake.vram_total(index)
+                        if state.fake_data
+                        else get_vram_total(index)
                     )
 
 
-                # Keep the old single-GPU fields synchronised with GPU 0.
-                # Existing modules/code using those fields therefore continue
-                # to work.
-
-                state.update_hardware(
-                    cpu_temp=(
-                        fake.cpu_temp() if state.fake_data
-                        else get_cpu_temp(lhm_data)
-                    ),
-
-                    cpu_power=(
-                        fake.cpu_power() if state.fake_data
-                        else get_cpu_power(lhm_data)
-                    ),
-
-                    cpu_load=(
-                        fake.cpu_load() if state.fake_data
-                        else get_cpu_load(lhm_data)
-                    ),
-
-                    gpu_temp=(
-                        gpu_stats[0]["temp"]
-                        if gpu_stats
-                        else 0
-                    ),
-
-                    gpu_power=(
-                        gpu_stats[0]["power"]
-                        if gpu_stats
-                        else 0
-                    ),
-
-                    gpu_load=(
-                        gpu_stats[0]["load"]
-                        if gpu_stats
-                        else 0
-                    ),
-
-                    gpus=gpu_stats,
-
-                    dram_used=(
-                        fake.dram_used() if state.fake_data
-                        else get_dram_used(lhm_data)
-                    ),
-
-                    vram_used=(
-                        gpu_stats[0]["vram_used"]
-                        if gpu_stats
-                        else 0.0
-                    ),
+                gpu_stats.append(
+                    gpu_copy
                 )
 
 
-                # Retry VRAM totals if they were unavailable at startup.
+            # Keep the old single-GPU fields synchronised with GPU 0.
+            # Existing modules/code using those fields therefore continue
+            # to work.
 
-                if gpu_stats:
-                    state.vram_total = gpu_stats[0].get(
-                        "vram_total",
-                        state.vram_total,
-                    )
+            state.update_hardware(
+                cpu_temp=(
+                    fake.cpu_temp() if state.fake_data
+                    else get_cpu_temp()
+                ),
+
+                cpu_power=(
+                    fake.cpu_power() if state.fake_data
+                    else get_cpu_power()
+                ),
+
+                cpu_load=(
+                    fake.cpu_load() if state.fake_data
+                    else get_cpu_load()
+                ),
+
+                gpu_temp=(
+                    gpu_stats[0]["temp"]
+                    if gpu_stats
+                    else 0
+                ),
+
+                gpu_power=(
+                    gpu_stats[0]["power"]
+                    if gpu_stats
+                    else 0
+                ),
+
+                gpu_load=(
+                    gpu_stats[0]["load"]
+                    if gpu_stats
+                    else 0
+                ),
+
+                gpus=gpu_stats,
+
+                dram_used=(
+                    fake.dram_used() if state.fake_data
+                    else get_dram_used()
+                ),
+
+                vram_used=(
+                    gpu_stats[0]["vram_used"]
+                    if gpu_stats
+                    else 0.0
+                ),
+            )
 
 
-                if state.dram_total == "?":
-                    state.dram_total = (
-                        fake.dram_total() if state.fake_data
-                        else get_dram_total(lhm_data)
-                    )
+            # Retry VRAM totals if they were unavailable at startup.
+
+            if gpu_stats:
+                state.vram_total = gpu_stats[0].get(
+                    "vram_total",
+                    state.vram_total,
+                )
+
+
+            if state.dram_total == "?":
+                state.dram_total = (
+                    fake.dram_total() if state.fake_data
+                    else get_dram_total()
+                )
 
 
             # ── Network ───────────────────────────────────────────────────────

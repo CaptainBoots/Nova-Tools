@@ -9,8 +9,8 @@ Same sections, same order as the original Tk version:
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QDialog, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout, QLabel,
-    QPushButton, QLineEdit, QCheckBox, QRadioButton, QSlider, QScrollArea,
-    QMessageBox, QFrame, QButtonGroup,
+    QPushButton, QLineEdit, QCheckBox, QSlider, QScrollArea,
+    QMessageBox, QFrame,
 )
 
 from config import normalize_char
@@ -227,7 +227,7 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
     _hline(media_body_layout)
     media_body_layout.addSpacing(8)
 
-    spotify_heading = QLabel("Spotify")
+    spotify_heading = QLabel("Spotify Premium (Web API, optional — Free needs nothing)")
     spotify_heading.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
     spotify_heading.setFont(theme.qt_font(9, bold=True))
     media_body_layout.addWidget(spotify_heading)
@@ -403,34 +403,6 @@ def open_settings(parent, state, cfg: dict, save_cb, reset_cb, theme_cb, opacity
         hint_lbl.setStyleSheet(f"color: {theme.SUBTEXT}; background: transparent; margin-left: 20px; border: none;")
         hint_lbl.setFont(theme.qt_font(8))
         inner_layout.addWidget(hint_lbl)
-
-    # ── LHM startup preference ───────────────────────────────────────────
-    _section_label(inner_layout, "Libre Hardware Monitor")
-
-    lhm_options = [
-        ("always", "Always start LHM on launch"),
-        ("ask",    "Ask every time"),
-        ("never",  "Never start / don't ask"),
-    ]
-    lhm_group = QButtonGroup(dlg)
-    current_lhm = cfg.get("lhm_prompt", "ask")
-
-
-    def _lhm_changed(value):
-        cfg["lhm_prompt"] = value
-        save_cb()
-
-    for value, label_text in lhm_options:
-        rb = QRadioButton(label_text)
-        rb.setStyleSheet(f"color: {theme.TEXT}; background: transparent; border: none;")
-        rb.setFont(theme.qt_font(9))
-
-        rb.setCursor(Qt.PointingHandCursor)
-        rb.setChecked(value == current_lhm)
-
-        rb.toggled.connect(lambda checked, v=value: _lhm_changed(v) if checked else None)
-        lhm_group.addButton(rb)
-        inner_layout.addWidget(rb)
 
     # ── Actions ───────────────────────────────────────────────────────────
     _section_label(inner_layout, "Actions")

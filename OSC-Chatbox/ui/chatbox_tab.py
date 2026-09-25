@@ -4,7 +4,7 @@ ui/chatbox_tab.py
 Qt replacement for ui/chatbox_tab.py. Same layout and behaviour:
   - Status bar + Start/Stop/Restart/Settings/Help buttons
   - Live chatbox preview
-  - Config fields (OSC IP/Port, interface, LHM URL, location)
+   - Config fields (OSC IP/Port, interface, location)
   - Forced text override
   - Bottom bar: Discord button (bottom-left), rotating banner (bottom-centre),
     GitHub button (bottom-right) — pinned to the window edges like the Tk
@@ -288,8 +288,7 @@ class ChatboxTab(StripeBackground):
             ("OSC Port",      "osc_port",   0, 2, 3),
             ("Interface",     "interface",  1, 0, 1),
             ("useless block", "temp_var1",  1, 2, 3),
-            ("LHM URL",       "lhm_api",    2, 0, 1),
-            ("Location",      "location",   2, 2, 3),
+            ("Location",      "location",   2, 0, 1),
         ]
 
         for label, key, r, cl, ce in fields:

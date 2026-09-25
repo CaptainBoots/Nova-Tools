@@ -165,7 +165,6 @@ def get_defaults() -> dict:
         "osc_port":        9000,
         "interface":       _default_interface(),
         "temp_var1":       "space block",
-        "lhm_api":         "http://localhost:8085/data.json",
         "location":        "0,0",
         "slow_mode":      False,
         "speed_mode":      False,
@@ -175,7 +174,6 @@ def get_defaults() -> dict:
         "progress_border": DEFAULT_PROGRESS_BORDER,
         "progress_empty":  DEFAULT_PROGRESS_EMPTY,
         "theme_mode":      "new",
-        "lhm_prompt":      "ask",
         "pages":           DEFAULT_PAGES,
 
         # Media priority list (Settings -> Media) — None means "use the
