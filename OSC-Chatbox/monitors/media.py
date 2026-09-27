@@ -773,6 +773,36 @@ def _linux_candidate_pipewire() -> Optional[tuple[str, bool, dict]]:
     return ("spotify", playing, info)
 
 
+_tools_logged = False
+
+
+def log_available_tools() -> None:
+    """Print once, at startup, which local media-detection tools were
+    found — so "Nothing Playing" on a minimal WM setup (no playerctl,
+    no pipewire-pulse/pulseaudio-utils) has an obvious explanation
+    instead of looking like a silent failure. Linux/macOS only."""
+    global _tools_logged
+    if _tools_logged or sys.platform == "win32":
+        return
+    _tools_logged = True
+    found = {
+        "playerctl": shutil.which("playerctl") is not None,
+        "dbus-send": shutil.which("dbus-send") is not None,
+        "pactl": shutil.which("pactl") is not None,
+    }
+    missing = [name for name, ok in found.items() if not ok]
+    if missing:
+        print(
+            "[media] Missing local media-detection tools: "
+            f"{', '.join(missing)}. Media info may show as "
+            "\"Nothing Playing\" even when something is playing. "
+            "Install playerctl and/or pipewire-pulse (or "
+            "pulseaudio-utils) for full detection."
+        )
+    else:
+        print("[media] Local media-detection tools found: playerctl, dbus-send, pactl")
+
+
 async def fetch() -> dict:
     """Merges up to two independent candidates — whatever the OS reports
     locally (SMTC on Windows / MPRIS on Linux, incl. the Free Spotify

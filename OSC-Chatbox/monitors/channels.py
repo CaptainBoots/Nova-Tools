@@ -29,6 +29,10 @@ def _start_one(n: int, port: int):
     dispatcher.map("/chatbox/input", _make_handler(n))
     dispatcher.set_default_handler(lambda *a: None)
     try:
+        # SO_REUSEADDR so a quick restart after a hard kill doesn't hit
+        # "Address already in use" while the OS is still releasing the
+        # old socket.
+        BlockingOSCUDPServer.allow_reuse_address = True
         server = BlockingOSCUDPServer(("127.0.0.1", port), dispatcher)
         server.serve_forever()
     except Exception as e:

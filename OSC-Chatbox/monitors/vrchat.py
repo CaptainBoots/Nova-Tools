@@ -26,6 +26,11 @@ def _start_osc_server():
     dispatcher.map("/avatar/parameters/FPS", _on_fps)
     dispatcher.set_default_handler(lambda *a: None)
     try:
+        # Without this, restarting the app quickly after a hard kill (no
+        # clean shutdown) can hit "Address already in use" even though the
+        # old process is gone — the previous socket hasn't been released
+        # by the OS yet.
+        BlockingOSCUDPServer.allow_reuse_address = True
         server = BlockingOSCUDPServer(("127.0.0.1", 9001), dispatcher)
         server.serve_forever()
     except Exception as e:

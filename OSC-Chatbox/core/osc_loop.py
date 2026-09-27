@@ -286,14 +286,23 @@ def _run(
             while state.running:
                 if state.fake_data:
                     info = await fake.media_fetch()
-                elif main_fetch_media:
-                    # Running as root/admin — use worker (sync call in thread)
-                    import concurrent.futures
-                    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
-                        fut = ex.submit(main_fetch_media)
-                        info = await asyncio.wrap_future(fut)
                 else:
-                    info = await media_mod.fetch()
+                    info = None
+                    if main_fetch_media:
+                        # Only meaningful if a sudo/admin worker is actually
+                        # running as the real user — fetch_media() returns
+                        # None immediately when there's no active worker
+                        # (not elevated, worker not spawned, or it died).
+                        import concurrent.futures
+                        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as ex:
+                            fut = ex.submit(main_fetch_media)
+                            info = await asyncio.wrap_future(fut)
+
+                    if not isinstance(info, dict):
+                        # No worker (normal, non-elevated run — the common
+                        # case on both Linux and Windows), or the worker
+                        # gave us nothing this cycle — fetch directly.
+                        info = await media_mod.fetch()
 
 
                 with media_cache["lock"]:

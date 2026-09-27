@@ -83,7 +83,55 @@ def _ensure_venv():
             subprocess.check_call([sys.executable, "-m", "venv", venv_dir], creationflags=cflags)
         except Exception as e:
             print(f"[setup] Failed to create virtual environment: {e}")
+            if sys.platform != "win32":
+                # The actual underlying error (e.g. Debian/Ubuntu's
+                # "ensurepip is not available" when python3-venv isn't
+                # installed) already printed directly to this console
+                # from the failed subprocess itself, above.
+                print(
+                    "[setup] On Debian/Ubuntu this usually means the venv module isn't "
+                    "installed separately from the rest of Python. Try:\n"
+                    "         sudo apt install python3-venv\n"
+                    "       then run this again."
+                )
             sys.exit(1)
+
+    # If this bootstrap ran as root (e.g. `sudo python main.py`), any files
+    # it just created or is about to pip-install stay root-owned. That's
+    # fine for this run, but the venv is shared with future non-sudo runs
+    # too — a plain `python main.py` later would then fail to install new
+    # dependencies with a permission error it can't explain. Hand the venv
+    # back to the real (invoking) user so both modes keep working.
+    def _chown_venv_to_real_user():
+        if sys.platform == "win32":
+            return
+        try:
+            if os.geteuid() != 0:
+                return
+        except AttributeError:
+            return
+        uid = os.environ.get("SUDO_UID")
+        gid = os.environ.get("SUDO_GID")
+        if not uid:
+            return
+        gid = gid or uid
+        try:
+            uid, gid = int(uid), int(gid)
+        except ValueError:
+            return
+        try:
+            for root, dirs, files in os.walk(venv_dir):
+                for name in dirs + files:
+                    path = os.path.join(root, name)
+                    try:
+                        os.chown(path, uid, gid)
+                    except OSError:
+                        pass
+            os.chown(venv_dir, uid, gid)
+        except Exception as e:
+            print(f"[setup] Warning: couldn't hand .venv ownership back to uid {uid}: {e}")
+
+    _chown_venv_to_real_user()
 
     # Install/update dependencies from dependency.txt
     dep_file = os.path.join(script_dir, "dependency.txt")
@@ -106,6 +154,10 @@ def _ensure_venv():
                 f.write("OK")
         except Exception as e:
             print(f"[setup] Error installing dependencies: {e}")
+
+        # Dependencies installed above may have run as root too — same
+        # reasoning as the venv creation step.
+        _chown_venv_to_real_user()
 
     # Relaunch script using the local venv's Python interpreter
     cmd = [venv_python, os.path.abspath(__file__)] + sys.argv[1:]
@@ -146,6 +198,10 @@ if __name__ == "__main__":
     # Spawn media worker if running as root/admin
     _spawn_media_worker()
 
+    from monitors import media as media_mod
+
+    media_mod.log_available_tools()
+
     from monitors import steamvr, vrchat, channels
 
     steamvr.start()
@@ -155,6 +211,35 @@ if __name__ == "__main__":
     from ui.app import App
 
     app = App()
+
+    # ── Graceful shutdown on SIGTERM/SIGINT ─────────────────────────────────
+    # Without this, a `kill`, `systemctl stop`, or an IDE's stop button
+    # skips the `finally` below entirely (the OS just ends the process), so
+    # the sudo-spawned media worker isn't told to shut down cleanly — it
+    # only notices via EOF once its pipes close, which isn't guaranteed to
+    # be immediate. A signal handler lets us shut it down explicitly.
+    #
+    # Qt's C++ event loop can also block long enough that Python doesn't
+    # get a chance to run the handler at all, so a short-interval QTimer
+    # keeps handing control back to the interpreter.
+    import signal
+    from PySide6.QtCore import QTimer
+
+
+    def _graceful_shutdown(signum, frame):
+        shutdown_media_worker()
+        qt_app.quit()
+
+
+    try:
+        signal.signal(signal.SIGTERM, _graceful_shutdown)
+        signal.signal(signal.SIGINT, _graceful_shutdown)
+    except (ValueError, OSError):
+        pass  # e.g. not the main thread, or unsupported on this platform
+
+    _signal_pump = QTimer()
+    _signal_pump.timeout.connect(lambda: None)
+    _signal_pump.start(200)
 
     try:
         app.run()
