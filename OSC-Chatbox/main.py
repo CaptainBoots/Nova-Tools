@@ -3,7 +3,7 @@ import subprocess
 import sys
 import json
 
-VERSION = "1.0.4"
+VERSION = "1.1.0"
 NAME = "ChatBox"
 TOOL_ID = "000101"
 
